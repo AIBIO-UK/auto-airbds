@@ -10,7 +10,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "preview": "vite preview",
-    "pages:dev": "wrangler pages dev dist --kv=UPLOADS",
+    "pages:dev": "wrangler pages dev dist",
     "pages:deploy": "wrangler pages deploy dist"
   },
   "dependencies": {

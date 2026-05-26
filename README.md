@@ -2,14 +2,14 @@ An experimental website for collecting, processing and publishing AI-performed A
 
 ## Infrastructure
 
-- **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`)
-- **Cloudflare KV** — persistent key-value store shared across all function instances
-- **React** — frontend SPA built with TypeScript
+- **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, `DELETE /api/entries/:id`)
+- **Cloudflare D1** — strongly-consistent SQLite database storing uploads, so new entries are visible to readers immediately
+- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload)
 - **Vite** — build tool and dev server
 
 ## Configuration
 
-Cloudflare Pages configuration is kept in the repository as code in [`wrangler.toml`](./wrangler.toml) (project name, build output directory, compatibility date, and the `UPLOADS` KV namespace binding).
+Cloudflare Pages configuration is kept in the repository as code in [`wrangler.toml`](./wrangler.toml) (project name, build output directory, compatibility date, and the `DB` D1 database binding).
 
 When this file is present it is the **source of truth** for the bindings and variables it defines — the equivalent Dashboard settings for those environments become read-only. Keep every required binding listed here, otherwise deployed Functions will lose access to them.
 
@@ -24,8 +24,11 @@ npm install
 # Build the frontend
 npm run build
 
-# Start the local preview server with KV support (includes API functions)
-npx wrangler pages dev dist --kv=UPLOADS
+# Create the local D1 schema (one-off; stored under .wrangler/)
+npx wrangler d1 execute auto-airbds --local --file=./schema.sql
+
+# Start the local preview server (D1 binding comes from wrangler.toml)
+npx wrangler pages dev dist
 
 # In another terminal, upload JSON:
 curl -X POST http://localhost:8788/api/upload \
@@ -38,18 +41,22 @@ curl -X POST http://localhost:8788/api/upload \
 
 The default port is `8788`. Use `--port <number>` to change it.
 
-For local development with KV, start the server with:
-```bash
-npx wrangler pages dev dist --kv=UPLOADS
-```
+### Database (D1) setup
 
-### Production KV setup
-
-The `UPLOADS` binding is declared in [`wrangler.toml`](./wrangler.toml) and points at the `auto-airbds` KV namespace, so no manual Dashboard binding is required. If you ever recreate the namespace, update the `id` under `[[kv_namespaces]]` to match. List your namespace ids with:
+Uploads are stored in a Cloudflare D1 database named `auto-airbds`, bound as `DB` in [`wrangler.toml`](./wrangler.toml). The schema lives in [`schema.sql`](./schema.sql).
 
 ```bash
-npx wrangler kv namespace list
+# Apply the schema locally (writes to .wrangler/)
+npx wrangler d1 execute auto-airbds --local --file=./schema.sql
+
+# Apply the schema to the remote (production) database
+npx wrangler d1 execute auto-airbds --remote --file=./schema.sql
+
+# List your D1 databases / ids
+npx wrangler d1 list
 ```
+
+If you recreate the database, update `database_id` under `[[d1_databases]]` in `wrangler.toml` to match (`npx wrangler d1 create auto-airbds` prints it).
 
 ### Test upload scripts
 

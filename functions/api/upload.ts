@@ -12,8 +12,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { keys } = await context.env.UPLOADS.list();
-  if (keys.length >= MAX_UPLOADS) {
+  const countRow = await context.env.DB.prepare(
+    "SELECT COUNT(*) AS count FROM entries"
+  ).first<{ count: number }>();
+  if ((countRow?.count ?? 0) >= MAX_UPLOADS) {
     return new Response("Upload limit reached", { status: 429 });
   }
 
@@ -30,7 +32,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     data,
   };
 
-  await context.env.UPLOADS.put(entry.id, JSON.stringify(entry));
+  await context.env.DB.prepare(
+    "INSERT INTO entries (id, timestamp, data) VALUES (?, ?, ?)"
+  )
+    .bind(entry.id, entry.timestamp, JSON.stringify(entry.data))
+    .run();
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

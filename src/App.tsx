@@ -8,15 +8,28 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/entries")
-      .then((r) => r.json())
-      .then((data) => {
-        setEntries(data);
-        if (!selectedId && data.length > 0) {
-          setSelectedId(data[0].id);
-        }
-      })
-      .catch(() => {});
+    let cancelled = false;
+
+    function load() {
+      fetch("/api/entries")
+        .then((r) => r.json())
+        .then((data: UploadEntry[]) => {
+          if (cancelled) return;
+          setEntries(data);
+          setSelectedId((current) =>
+            current ?? (data.length > 0 ? data[0].id : null)
+          );
+        })
+        .catch(() => {});
+    }
+
+    load();
+    // D1 is strongly consistent, so polling surfaces new uploads promptly.
+    const interval = setInterval(load, 3000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
   async function handleDelete(id: string) {

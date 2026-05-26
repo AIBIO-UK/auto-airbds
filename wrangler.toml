@@ -10,8 +10,10 @@ name = "auto-airbds"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-05-25"
 
-# Persistent key-value store read by the API functions as `context.env.UPLOADS`
-# (see functions/api/upload.ts and functions/api/entries.ts).
-[[kv_namespaces]]
-binding = "UPLOADS"
-id = "7a3640cd1b1440cabd2cdf6ce46e3ef8"
+# Strongly-consistent SQLite store read by the API functions as `context.env.DB`
+# (see functions/api/upload.ts, functions/api/entries.ts and entries/[id].ts).
+# Strong consistency means uploads are visible to readers immediately, unlike KV.
+[[d1_databases]]
+binding = "DB"
+database_name = "auto-airbds"
+database_id = "edaec72b-969f-4f90-9d7d-13c7168b517f"
