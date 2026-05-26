@@ -7,6 +7,14 @@ An experimental website for collecting, processing and publishing AI-performed A
 - **React** — frontend SPA built with TypeScript
 - **Vite** — build tool and dev server
 
+## Configuration
+
+Cloudflare Pages configuration is kept in the repository as code in [`wrangler.toml`](./wrangler.toml) (project name, build output directory, compatibility date, and the `UPLOADS` KV namespace binding).
+
+When this file is present it is the **source of truth** for the bindings and variables it defines — the equivalent Dashboard settings for those environments become read-only. Keep every required binding listed here, otherwise deployed Functions will lose access to them.
+
+The Git connection, build command, and **secrets** are not stored in this file. Set secrets with `wrangler pages secret put <NAME>` or in the Dashboard under **Settings → Functions → Environment variables**.
+
 ## Local testing
 
 ```bash
@@ -37,15 +45,22 @@ npx wrangler pages dev dist --kv=UPLOADS
 
 ### Production KV setup
 
-1. In the Cloudflare Dashboard, go to **Workers & Pages** → **KV** → **Create namespace** → name it `auto-airbds`
-2. Go to your Pages project → **Settings** → **Functions** → **KV namespace bindings** → **Add binding**
-   - Variable name: `UPLOADS`
-   - KV namespace: select `auto-airbds`
-
-A test upload script is available at `scripts/test-upload.sh`:
+The `UPLOADS` binding is declared in [`wrangler.toml`](./wrangler.toml) and points at the `auto-airbds` KV namespace, so no manual Dashboard binding is required. If you ever recreate the namespace, update the `id` under `[[kv_namespaces]]` to match. List your namespace ids with:
 
 ```bash
-./scripts/test-upload-local.sh
+npx wrangler kv namespace list
+```
+
+### Test upload scripts
+
+Scripts that upload `scripts/example-assessment-1.json` and report success or the server's error message:
+
+```bash
+# Against a local `wrangler pages dev` server
+./scripts/test-json-upload-local.sh
+
+# Against the deployed site
+./scripts/test-json-upload-online.sh
 ```
 
 ## Tests

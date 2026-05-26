@@ -1,0 +1,17 @@
+# Cloudflare Pages configuration (config-as-code).
+# When this file is present, it is the source of truth for the bindings/vars
+# below — the Dashboard equivalents for these environments become read-only.
+# Keep all required bindings here, or deployed Functions will lose access to them.
+#
+# Secrets are NOT stored here. Set them with `wrangler pages secret put <NAME>`
+# or in the Dashboard (Settings -> Functions -> Environment variables).
+
+name = "auto-airbds"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-05-25"
+
+# Persistent key-value store read by the API functions as `context.env.UPLOADS`
+# (see functions/api/upload.ts and functions/api/entries.ts).
+[[kv_namespaces]]
+binding = "UPLOADS"
+id = "7a3640cd1b1440cabd2cdf6ce46e3ef8"
