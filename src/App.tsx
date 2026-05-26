@@ -46,7 +46,7 @@ function App() {
       <header>auto-AIRBDS</header>
       <div className="banner" role="alert">
         <strong>Experimental and under development.</strong> Do not rely on any
-        of the assessments shown. Uploaded assessments may be deleted at any
+        of the assessments shown, they may be entirely wrong. Uploaded assessments may be deleted at any
         time.
       </div>
       <h1>JSON Uploads</h1>
