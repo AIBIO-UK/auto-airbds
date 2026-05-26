@@ -44,6 +44,11 @@ function App() {
   return (
     <div className="app">
       <header>auto-AIRBDS</header>
+      <div className="banner" role="alert">
+        <strong>Experimental and under development.</strong> Do not rely on any
+        of the assessments shown. Uploaded assessments may be deleted at any
+        time.
+      </div>
       <h1>JSON Uploads</h1>
       <p className="subtitle">
         POST JSON to <code>/api/upload</code> to add entries.
