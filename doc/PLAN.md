@@ -6,3 +6,5 @@
 - Need a feature to reduce potential upload spamming.
 - Need an admin role that can delete assessments unless we rely on this being done on a github storage backend.
 - This website could potentially also handle assessments done by humans, though these will likely come in a different from like a spreadsheet rather than as JSON. The workflow here may be considerably different.
+- Need to ensure that assessments are contributed with a permissive license.
+- Add a page describing the scoring system for a version of the AIRBDS metric. We should be able to auto-generate this out of the appropriate metrics YAML.
