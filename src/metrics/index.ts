@@ -1,6 +1,8 @@
 import airbds03 from "./airbds-0.3.yaml";
 
 export interface QuestionMeta {
+  /** Broad category, broader than theme (e.g. Infrastructure, Metadata). */
+  scope: string;
   theme: string;
   grade: string;
   text: string;
@@ -100,12 +102,13 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
   for (const [id, value] of Object.entries(raw.questions)) {
     if (
       !isRecord(value) ||
+      typeof value.scope !== "string" ||
       typeof value.theme !== "string" ||
       typeof value.grade !== "string" ||
       typeof value.text !== "string"
     ) {
       throw new Error(
-        `Invalid metric file ${source}: question "${id}" needs string theme, grade and text`
+        `Invalid metric file ${source}: question "${id}" needs string scope, theme, grade and text`
       );
     }
     if (!(value.grade in gradePoints)) {
@@ -113,7 +116,12 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
         `Invalid metric file ${source}: question "${id}" has grade "${value.grade}" with no grade_points entry`
       );
     }
-    questions[id] = { theme: value.theme, grade: value.grade, text: value.text };
+    questions[id] = {
+      scope: value.scope,
+      theme: value.theme,
+      grade: value.grade,
+      text: value.text,
+    };
   }
 
   return { questions, gradePoints };

@@ -166,6 +166,8 @@ describe("App routing", () => {
     // not the payload.
     expect(screen.getByText("Access")).toBeInTheDocument(); // ACM-1 theme
     expect(screen.getByText("Licence")).toBeInTheDocument(); // ACM-4 theme
+    // Scope comes from the metric too (ACM-1 and ACM-4 are both Infrastructure).
+    expect(screen.getAllByText("Infrastructure")).toHaveLength(2);
     expect(screen.getByText("Critical")).toBeInTheDocument(); // ACM-4 grade
     expect(
       screen.getByText("Can the dataset be accessed in its entirety?")

@@ -4,11 +4,13 @@ import { questionMeta, questionScore, maxScore, hasMetricVersion } from "./index
 describe("metric question lookup (AIRBDS 0.3)", () => {
   it("returns the fixed theme, grade and text for known questions", () => {
     expect(questionMeta("0.3", "ACM-1")).toEqual({
+      scope: "Infrastructure",
       theme: "Access",
       grade: "Important",
       text: "Can the dataset be accessed in its entirety?",
     });
     expect(questionMeta("0.3", "ACM-4")).toEqual({
+      scope: "Infrastructure",
       theme: "Licence",
       grade: "Critical",
       text: "Is the dataset released with a clear licence or terms of use?",

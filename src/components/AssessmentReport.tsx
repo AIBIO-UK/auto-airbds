@@ -74,6 +74,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
           // answer); fall back to the payload's own values only when the
           // version is unknown.
           const meta = questionMeta(metricVersion, r.questionId);
+          const scope = meta?.scope ?? null;
           const theme = meta?.theme ?? r.theme;
           const grade = meta?.grade ?? r.grade;
           const questionText = meta?.text ?? r.questionText;
@@ -82,6 +83,8 @@ export function AssessmentReport({ data, metricVersion }: Props) {
             <div className="result-card" key={r.questionId ?? i}>
               <span className="field-label">ID:</span>
               <span className="mono">{r.questionId ?? "—"}</span>
+              <span className="field-label">Scope:</span>
+              <span>{scope ?? "—"}</span>
               <span className="field-label">Theme:</span>
               <span>{theme ?? "—"}</span>
               <span className="field-label">Grade:</span>

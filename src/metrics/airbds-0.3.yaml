@@ -1,13 +1,13 @@
 # AIRBDS AI-Readiness Dataset Scoring Metric — question definitions.
 #
-# For a given metric version the theme and grade of each question are fixed,
-# so they are defined here rather than trusted from uploaded assessments.
+# For a given metric version the scope, theme and grade of each question are
+# fixed, so they are defined here rather than trusted from uploaded assessments.
 # One file per version; the filename carries the version (airbds-<version>.yaml).
 #
-# Theme, grade, question text, and notes are taken from the "Scoring" tab of the
-# AIRBDS Core Metric v0.3 spreadsheet (AIBIO-UK/airbds-metric). The notes explain
-# how each question should be answered; they are guidance for humans/LLMs and are
-# not displayed on the website.
+# Scope, theme, grade, question text, and notes are taken from the "Scoring" tab
+# of the AIRBDS Core Metric v0.3 spreadsheet (AIBIO-UK/airbds-metric). Scope is
+# broader than theme. The notes explain how each question should be answered;
+# they are guidance for humans/LLMs and are not displayed on the website.
 #
 # This is a language-neutral data file: it is the source of truth for the
 # question definitions and can be read by any tool, not just the web frontend.
@@ -24,141 +24,169 @@ grade_points:
 
 questions:
   ACM-1:
+    scope: Infrastructure
     theme: Access
     grade: Important
     text: "Can the dataset be accessed in its entirety?"
     notes: "Every entry in the dataset should be accessible via direct download, API, or in a cloud container. This metric is not applicable to datasets behind access controls with an approval process, or in trusted research environments."
   ACM-2:
+    scope: Infrastructure
     theme: Metadata
     grade: Important
     text: "Is the metadata provided along with the data?"
     notes: "All metadata should be colocated with the data. This means it should be visible on the same repository page, or packaged with the download. Journal articles are not considered metadata."
   ACM-3:
+    scope: Infrastructure
     theme: Integrity
     grade: Optional
     text: "Does the dataset include a mechanism for verifying its integrity?"
     notes: "For a direct download or cloud container, this would be a checksum or cryptographic hash. For an API using HTTPS/TLS, integrity checks are built into the protocol."
   ACM-4:
+    scope: Infrastructure
     theme: Licence
     grade: Critical
     text: "Is the dataset released with a clear licence or terms of use?"
     notes: "Infrastructures may offer no guarantees about the licensing of the data they host. See NIH Policies as an example. Datasets with an explicit licence are strongly preferred."
   ACM-5:
+    scope: Infrastructure
     theme: Licence
     grade: Important
     text: "Is the licence standardised and machine-readable?"
     notes: "e.g. Creative Commons, MIT."
   ACM-6:
+    scope: Infrastructure
     theme: Resource
     grade: Important
     text: "Is the dataset deposited in a FAIR-compliant archive?"
     notes: "General purpose repositories may or may not be FAIR-compliant. For example, Zenodo is considered FAIR-compliant. HuggingFace and Kaggle are not."
   ACM-7:
+    scope: Infrastructure
     theme: Resource
     grade: Important
     text: "Is the dataset deposited in a domain-appropriate infrastructure?"
     notes: "A domain-appropriate archive is preferred for findability, access to specific tooling, and consistent implementation of standards. The alternative is a general purpose archive, e.g. Zenodo, Data Dryad."
   ACM-8:
+    scope: Infrastructure
     theme: Resource
     grade: Optional
     text: "Is the dataset hosted in a searchable infrastructure?"
     notes: "Infrastructures vary in the search functionality they offer, but it should be possible to search for a dataset based on metadata properties as well as looking it up directly via an ID or accession."
   ACM-9:
+    scope: Infrastructure
     theme: UID
     grade: Critical
     text: "Does the dataset have a globally unique, persistent identifier?"
     notes: "A URL does not count as a persistent identifier. An accession assigned by a repository is acceptable, as long as the combination of repository+accession uniquely identifies the dataset. While FAIR-compliant archives provide UIDs, not all archives do (e.g. Kaggle)."
   ACM-10:
+    scope: Infrastructure
     theme: Updates
     grade: Optional
     text: "If the dataset is subject to updates, does it use a version control system?"
     notes: "If the dataset will not be updated, mark this question \"Yes\"."
   ACM-11:
+    scope: Metadata
     theme: Bias
     grade: Important
     text: "Is consideration of bias documented in the metadata?"
     notes: "An accompanying research article does not form part of the metadata."
   ACM-12:
+    scope: Metadata
     theme: Metadata
     grade: Critical
     text: "Does the dataset use a machine-readable, domain-appropriate metadata standard?"
     notes: "Metadata should include a domain-appropriate set of information about the dataset, following a standard. For example, Minimum Information Standards (e.g. MIAME, MIAPE). Variable names should be self-explanatory."
   ACM-13:
+    scope: Metadata
     theme: Metadata
     grade: Critical
     text: "Does the metadata include the identifier of the dataset?"
     notes: "The metadata should be clearly linked to the dataset with a unqiue identifier. If the dataset has no unique identifier, mark this question \"No\". A URL does not qualify as a unique identifier."
   ACM-14:
+    scope: Metadata
     theme: Metadata
     grade: Optional
     text: "Does the metadata specify intended access controls?"
     notes: "e.g. “public”, “controlled access only”, etc. If the data is publically available with no limitations on use, this should be specified."
   ACM-15:
+    scope: Metadata
     theme: Metadata
     grade: Optional
     text: "Does the metadata document the modalities used?"
     notes: "e.g. RNA sequence, molecular structure, spectrum, image ."
   ACM-16:
+    scope: Metadata
     theme: Preprocessing
     grade: Important
     text: "Are transformation and preprocessing steps documented well enough to reproduce them?"
     notes: "Either with software in a repository, or with a detailed description."
   ACM-17:
+    scope: Metadata
     theme: Provenance
     grade: Critical
     text: "Is the provenance of the dataset clearly documented?"
     notes: "This should include who generated or collected it, how it's been processed, whether it has been published before, whether it contains data from other sources, whether and how it was measured or simulated. If any of these things is missing, mark the question \"No\"."
   ACM-18:
+    scope: Content
     theme: Quality
     grade: Important
     text: "Is the dataset free of duplicate records?"
     notes: "Repeated records or files is a common mistake that damages the quality of a dataset."
   ACM-19:
+    scope: Content
     theme: Quality
     grade: Important
     text: "Does the dataset include all expected records and content?"
     notes: "The expected content is defined by the metadata. If the dataset has no metadata, mark this question \"No\"."
   ACM-20:
+    scope: Content
     theme: Format
     grade: Critical
     text: "Are units, data types and parameter names consistent between entries?"
     notes: "Data types and vocabularies should be used consistently, even if a dataset combines data from multiple sources."
   ACM-21:
+    scope: Content
     theme: Standards
     grade: Important
     text: "Does the dataset follow domain standards with respect to units, data types, parameter names?"
     notes: "This could be indicated by a schema or domain-specific minimum information standard."
   ACM-22:
+    scope: Content
     theme: Format
     grade: Optional
     text: "Does the data use an appropriate file format?"
     notes: "Particularly with respect to efficiency and suitability. The appropriate format is specific to the modality, domain, and intended use."
   ACM-23:
+    scope: Content
     theme: Format
     grade: Optional
     text: "Is the data available in at least one open, non-proprietary format?"
     notes: "It should be possible to read a dataset and write it to a different format without the use of proprietary software."
   ACM-24:
+    scope: Ethics
     theme: Ethics
     grade: Critical
     text: "If the dataset contains data from animal or human subjects, does the dataset include an ethical assessment that covers acquisition?"
     notes: "This includes consent, sampling methods, regulatory compliance, and funding sources. The acquisition should be described using an appropriate framework, like the Belmont, Menlo, or CARE principles, sufficient for its proper evaluation in context of intended use. If the dataset contains no human or animal data, mark the question \"Yes\"."
   ACM-25:
+    scope: Ethics
     theme: Privacy
     grade: Critical
     text: "If the dataset contains data from human subjects, does the dataset preserve the privacy of subjects?"
     notes: "The risk of reidentification when the data is used to train AI should also be considered. If the dataset contains no human data, mark the question \"Yes\"."
   ACM-26:
+    scope: Ethics
     theme: Ethics
     grade: Important
     text: "If the dataset contains data from human subjects, does the dataset include an ethical assessment that covers data management?"
     notes: "Management includes processing, storage, access and use. The management plan should indicate privacy-protection processing, if any, sufficient to evaluate ethical status for intended use, e.g. \"anonymized\" vs. \"limited data set\" vs. \"non-PHI dataset\". If the dataset contains no human data, mark the question \"Yes\"."
   ACM-27:
+    scope: Ethics
     theme: Security
     grade: Important
     text: "If the dataset contains data from human subjects, does the dataset have the necessary authentication and access controls?"
     notes: "The appropriate level of access security depends on the dataset. If the dataset contains no human data, mark the question \"Yes\"."
   ACM-28:
+    scope: Ethics
     theme: Metadata
     grade: Optional
     text: "If the dataset contains data from human subjects, does the metadata document data protection declarations?"
