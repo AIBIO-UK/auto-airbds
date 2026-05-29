@@ -149,9 +149,9 @@ describe("App routing", () => {
 
     // Summary box: score is computed from the metric, not the payload.
     // Actual = ACM-1 (Important, Yes = 5) + ACM-4 (Critical, Yes = 80) = 85;
-    // max = total of all AIRBDS 0.3 questions if all "Yes" = 788.
+    // max = total of all AIRBDS 0.3 questions if all "Yes" = 716.
     await screen.findByText("85");
-    expect(screen.getByText("788")).toBeInTheDocument();
+    expect(screen.getByText("716")).toBeInTheDocument();
     expect(screen.queryByText("5678")).not.toBeInTheDocument(); // payload total ignored
     expect(screen.queryByText("1234")).not.toBeInTheDocument(); // payload max ignored
     expect(screen.getByText("Silver")).toBeInTheDocument();
@@ -165,7 +165,7 @@ describe("App routing", () => {
     // Theme, grade and question text come from the AIRBDS 0.3 definitions,
     // not the payload.
     expect(screen.getByText("Access")).toBeInTheDocument(); // ACM-1 theme
-    expect(screen.getByText("License")).toBeInTheDocument(); // ACM-4 theme
+    expect(screen.getByText("Licence")).toBeInTheDocument(); // ACM-4 theme
     expect(screen.getByText("Critical")).toBeInTheDocument(); // ACM-4 grade
     expect(
       screen.getByText("Can the dataset be accessed in its entirety?")

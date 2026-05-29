@@ -9,7 +9,7 @@ describe("metric question lookup (AIRBDS 0.3)", () => {
       text: "Can the dataset be accessed in its entirety?",
     });
     expect(questionMeta("0.3", "ACM-4")).toEqual({
-      theme: "License",
+      theme: "Licence",
       grade: "Critical",
       text: "Is the dataset provided with a clear data-use license?",
     });
@@ -41,9 +41,9 @@ describe("metric question lookup (AIRBDS 0.3)", () => {
   });
 
   it("computes the max score as the total of all questions answered Yes", () => {
-    // AIRBDS 0.3: 9 Critical (80), 10 Important (5), 9 Optional (2)
-    // = 720 + 50 + 18 = 788.
-    expect(maxScore("0.3")).toBe(788);
+    // AIRBDS 0.3: 8 Critical (80), 12 Important (5), 8 Optional (2)
+    // = 640 + 60 + 16 = 716.
+    expect(maxScore("0.3")).toBe(716);
     expect(maxScore("0.99")).toBeNull();
     expect(maxScore(null)).toBeNull();
   });

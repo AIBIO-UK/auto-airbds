@@ -23,28 +23,28 @@ questions:
     grade: Important
     text: "Can the dataset be accessed in its entirety?"
   ACM-2:
-    theme: Access
+    theme: Metadata
     grade: Important
     text: "Is there a standardised communications protocol for accessing the dataset?"
   ACM-3:
-    theme: Access
+    theme: Integrity
     grade: Optional
     text: "Does the access protocol allow for authentication and authorisation where necessary?"
   ACM-4:
-    theme: License
+    theme: Licence
     grade: Critical
     text: "Is the dataset provided with a clear data-use license?"
   ACM-5:
-    theme: License
-    grade: Critical
+    theme: Licence
+    grade: Important
     text: "Does the dataset's license permit use in AI/ML model training?"
   ACM-6:
-    theme: Download
+    theme: Resource
     grade: Important
     text: "Is there a mechanism to download the entire dataset at once?"
   ACM-7:
     theme: Resource
-    grade: Optional
+    grade: Important
     text: "Is the hosting resource specifically designed for scientific data?"
   ACM-8:
     theme: Resource
