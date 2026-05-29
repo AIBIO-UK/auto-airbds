@@ -9,6 +9,8 @@ export interface DatasetInfo {
   sourceUrl: string | null;
   /** When the assessment was performed (assessment.metadata.assessment_timestamp). */
   assessedAt: string | null;
+  /** The model that performed the assessment (assessment.metadata.model). */
+  model: string | null;
 }
 
 /**
@@ -33,6 +35,8 @@ export function datasetInfo(data: unknown): DatasetInfo {
       metadata && typeof metadata.assessment_timestamp === "string"
         ? metadata.assessment_timestamp
         : null,
+    model:
+      metadata && typeof metadata.model === "string" ? metadata.model : null,
   };
 }
 

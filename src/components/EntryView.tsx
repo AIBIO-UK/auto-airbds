@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function EntryView({ entry, onBack }: Props) {
-  const { title, sourceUrl, assessedAt } = datasetInfo(entry.data);
+  const { title, sourceUrl, assessedAt, model } = datasetInfo(entry.data);
 
   return (
     <div className="entry-view">
@@ -19,6 +19,8 @@ export function EntryView({ entry, onBack }: Props) {
         <span className="title">{title ?? "(untitled dataset)"}</span>
         <span className="field-label">Dataset URL:</span>
         <span className="url">{sourceUrl ?? "(no source URL)"}</span>
+        <span className="field-label">Performed by:</span>
+        <span className="performer">{model ?? "(unknown)"}</span>
         <span className="field-label">Assessment performed:</span>
         <span className="timestamp">
           {assessedAt ? formatTimestamp(assessedAt) : "(unknown)"}

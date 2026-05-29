@@ -15,6 +15,7 @@ const ENTRIES = [
           source_url: "https://example-data-portal.org/datasets/med-marine-invert",
         },
         metadata: {
+          model: "claude-opus-4-7",
           assessment_timestamp: "2026-05-29T10:00:00Z",
         },
       },
@@ -54,6 +55,8 @@ describe("App routing", () => {
     ).toBeInTheDocument();
     // The entry ID is shown in the list too.
     expect(screen.getByText("abc")).toBeInTheDocument();
+    // The performer (model) is shown in the list.
+    expect(screen.getByText("claude-opus-4-7")).toBeInTheDocument();
     // The raw JSON should not be rendered on the list page.
     expect(screen.queryByText(/"score": 42/)).not.toBeInTheDocument();
   });
@@ -78,6 +81,7 @@ describe("App routing", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("29 May 2026, 10:00 UTC")).toBeInTheDocument();
     expect(screen.getByText("abc")).toBeInTheDocument();
+    expect(screen.getByText("claude-opus-4-7")).toBeInTheDocument();
   });
 
   it("renders the JSON page directly from a deep link hash", async () => {

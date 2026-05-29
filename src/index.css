@@ -175,10 +175,16 @@ h1 {
   font-size: 12px;
 }
 
+.performer {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
 /* In the list, values are truncated to a single line. */
 .upload-list .title,
 .upload-list .entry-id,
 .upload-list .url,
+.upload-list .performer,
 .upload-list .timestamp {
   min-width: 0;
   overflow: hidden;
