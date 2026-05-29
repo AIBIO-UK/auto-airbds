@@ -6,7 +6,7 @@ The philosophy is to make uploads as easy as possible. This is to gather as many
 
 - **Anonymous uploads**
     - **Pros**
-        - **Lowest barrier**. The user barely needs to think. Their agents asks `(Optional) Upload this assessment anonymously to AIRBDS?`. No name or personal details are attached.
+        - **Lowest barrier**. The user barely needs to think. Their agent asks `(Optional) Upload this assessment anonymously to AIRBDS?`. No name or personal details are attached.
         - **No management**. If the website accepts attributed assessments then there may be a need to let the user selectively delete their own uploads, change the personal details attached to an assessment, etc. Not recording anything avoids all this.
         - **No stigma**. Some people may be reluctant to offend dataset providers with low-scoring assessments.
     - **Cons**
