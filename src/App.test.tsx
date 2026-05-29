@@ -10,6 +10,7 @@ const ENTRIES = [
     data: {
       score: 42,
       assessment: {
+        metric: { name: "AIRBDS Metric", version: "0.3" },
         dataset: {
           title: "Mediterranean Marine Invertebrate Records",
           source_url: "https://example-data-portal.org/datasets/med-marine-invert",
@@ -82,6 +83,9 @@ describe("App routing", () => {
     expect(screen.getByText("29 May 2026, 10:00 UTC")).toBeInTheDocument();
     expect(screen.getByText("abc")).toBeInTheDocument();
     expect(screen.getByText("claude-opus-4-7")).toBeInTheDocument();
+    // The AIRBDS metric version is shown on the detail page.
+    expect(screen.getByText(/AIRBDS version/i)).toBeInTheDocument();
+    expect(screen.getByText("0.3")).toBeInTheDocument();
   });
 
   it("falls back to raw JSON when the payload has no results", async () => {
@@ -99,23 +103,26 @@ describe("App routing", () => {
       timestamp: "2026-05-29T10:00:00Z",
       data: {
         assessment: {
+          metric: { version: "0.3" },
           dataset: { title: "Some Dataset", source_url: "https://ex.org/d" },
           metadata: { model: "claude-opus-4-7" },
+          // Theme and grade below are deliberately wrong: they should be
+          // ignored in favour of the metric-version definitions.
           results: [
             {
               question_id: "ACM-1",
-              theme: "Access",
+              theme: "BOGUS-THEME-1",
               question_text: "Can the dataset be accessed in its entirety?",
-              grade: "Important",
+              grade: "BOGUS-GRADE-1",
               answer: "Yes",
               score: 5,
               justification: "The full set of records is retrievable.",
             },
             {
-              question_id: "ACM-2",
-              theme: "License",
+              question_id: "ACM-4",
+              theme: "BOGUS-THEME-4",
               question_text: "Is the dataset provided with a clear license?",
-              grade: "Critical",
+              grade: "BOGUS-GRADE-4",
               answer: "No",
               score: 0,
               justification: "No licence is stated.",
@@ -145,12 +152,19 @@ describe("App routing", () => {
     expect(screen.getByText(/All Critical questions pass/)).toBeInTheDocument();
     expect(screen.getByText(/The dataset is highly AI-ready/)).toBeInTheDocument();
 
-    // Results table rows.
+    // Results rows.
     expect(screen.getByText("ACM-1")).toBeInTheDocument();
-    expect(screen.getByText("ACM-2")).toBeInTheDocument();
+    expect(screen.getByText("ACM-4")).toBeInTheDocument();
     expect(
       screen.getByText("Can the dataset be accessed in its entirety?")
     ).toBeInTheDocument();
+
+    // Theme and grade come from the AIRBDS 0.3 definitions, not the payload.
+    expect(screen.getByText("Access")).toBeInTheDocument(); // ACM-1 theme
+    expect(screen.getByText("License")).toBeInTheDocument(); // ACM-4 theme
+    expect(screen.getByText("Critical")).toBeInTheDocument(); // ACM-4 grade
+    expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
+    expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
 
     // The raw JSON dump is no longer shown for a recognised assessment.
     expect(screen.queryByText(/"weighted_score"/)).not.toBeInTheDocument();

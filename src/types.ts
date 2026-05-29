@@ -11,6 +11,8 @@ export interface DatasetInfo {
   assessedAt: string | null;
   /** The model that performed the assessment (assessment.metadata.model). */
   model: string | null;
+  /** The AIRBDS metric version used (assessment.metric.version). */
+  metricVersion: string | null;
 }
 
 /**
@@ -24,6 +26,8 @@ export function datasetInfo(data: unknown): DatasetInfo {
     assessment && isRecord(assessment.dataset) ? assessment.dataset : null;
   const metadata =
     assessment && isRecord(assessment.metadata) ? assessment.metadata : null;
+  const metric =
+    assessment && isRecord(assessment.metric) ? assessment.metric : null;
 
   return {
     title: dataset && typeof dataset.title === "string" ? dataset.title : null,
@@ -37,6 +41,8 @@ export function datasetInfo(data: unknown): DatasetInfo {
         : null,
     model:
       metadata && typeof metadata.model === "string" ? metadata.model : null,
+    metricVersion:
+      metric && typeof metric.version === "string" ? metric.version : null,
   };
 }
 

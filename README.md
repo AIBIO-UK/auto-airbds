@@ -5,7 +5,13 @@ An experimental website for collecting, processing and publishing AI-performed A
 - **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, `DELETE /api/entries/:id`)
 - **Cloudflare D1** — strongly-consistent SQLite database storing uploads, so new entries are visible to readers immediately
 - **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw JSON if the payload isn't a recognised assessment
-- **Vite** — build tool and dev server
+- **Vite** — build tool and dev server (YAML metric files are imported via `@rollup/plugin-yaml`)
+
+## Metric definitions
+
+For a given AIRBDS metric version, each question's **theme** and **grade** are fixed (e.g. `ACM-1` is always Access/Important, `ACM-4` is always License/Critical). These are defined in [`src/metrics/`](./src/metrics/), one language-neutral YAML file per version named by version (`airbds-<version>.yaml`), and are the source of truth — the theme/grade in uploaded assessments are ignored in favour of these.
+
+[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` for lookups; the assessment view uses it to display each question's theme and grade. To support a new version, add `airbds-<version>.yaml` and register it in `index.ts`.
 
 ## Configuration
 

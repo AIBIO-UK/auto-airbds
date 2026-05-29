@@ -8,7 +8,9 @@ interface Props {
 }
 
 export function EntryView({ entry, onBack }: Props) {
-  const { title, sourceUrl, assessedAt, model } = datasetInfo(entry.data);
+  const { title, sourceUrl, assessedAt, model, metricVersion } = datasetInfo(
+    entry.data
+  );
   const hasReport = assessmentDetails(entry.data).results.length > 0;
 
   return (
@@ -23,6 +25,8 @@ export function EntryView({ entry, onBack }: Props) {
         <span className="url">{sourceUrl ?? "(no source URL)"}</span>
         <span className="field-label">Performed by:</span>
         <span className="performer">{model ?? "(unknown)"}</span>
+        <span className="field-label">AIRBDS version:</span>
+        <span>{metricVersion ?? "(unknown)"}</span>
         <span className="field-label">Assessment performed:</span>
         <span className="timestamp">
           {assessedAt ? formatTimestamp(assessedAt) : "(unknown)"}
@@ -31,7 +35,7 @@ export function EntryView({ entry, onBack }: Props) {
         <span className="entry-id">{entry.id}</span>
       </div>
       {hasReport ? (
-        <AssessmentReport data={entry.data} />
+        <AssessmentReport data={entry.data} metricVersion={metricVersion} />
       ) : (
         <pre>{JSON.stringify(entry.data, null, 2)}</pre>
       )}

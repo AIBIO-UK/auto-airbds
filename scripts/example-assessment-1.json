@@ -16,252 +16,196 @@
     "results": [
       {
         "question_id": "ACM-1",
-        "theme": "Access",
         "question_text": "Can the dataset be accessed in its entirety?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "The full set of occurrence records is retrievable from the landing page without partial gating. No subset restrictions were observed."
       },
       {
         "question_id": "ACM-2",
-        "theme": "Access",
         "question_text": "Is there a standardised communications protocol for accessing the dataset?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "Records are served over HTTPS through a public GBIF IPT endpoint. The protocol is open and well documented."
       },
       {
         "question_id": "ACM-3",
-        "theme": "Access",
         "question_text": "Does the access protocol allow for authentication and authorisation where necessary?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "The hosting platform supports OAuth-based authentication for restricted resources. It is not required for this open dataset but is available."
       },
       {
         "question_id": "ACM-4",
-        "theme": "License",
         "question_text": "Is the dataset provided with a clear data-use license?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "The dataset is released under CC0 1.0, stated on the landing page and in the EML. The licence is expressed as a resolvable URI."
       },
       {
         "question_id": "ACM-5",
-        "theme": "License",
         "question_text": "Does the dataset's license permit use in AI/ML model training?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "CC0 places the data in the public domain with no restrictions on reuse. Training of AI/ML models is therefore permitted."
       },
       {
         "question_id": "ACM-6",
-        "theme": "Download",
         "question_text": "Is there a mechanism to download the entire dataset at once?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "A single Darwin Core Archive bundle is downloadable from the portal. No record-by-record harvesting is required."
       },
       {
         "question_id": "ACM-7",
-        "theme": "Resource",
         "question_text": "Is the hosting resource specifically designed for scientific data?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "The data are hosted on a GBIF-connected IPT instance built for biodiversity data publishing. The platform is purpose-built for scientific datasets."
       },
       {
         "question_id": "ACM-8",
-        "theme": "Resource",
         "question_text": "Is the dataset hosted in a searchable infrastructure?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "The dataset is indexed and discoverable through GBIF's search interface. Faceted search by taxon and region is supported."
       },
       {
         "question_id": "ACM-9",
-        "theme": "UID",
         "question_text": "Does the dataset have a globally unique, persistent identifier?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "A registered DOI (10.5281/zenodo.xxxxxx) is assigned and resolves to the current version. The identifier is globally unique and persistent."
       },
       {
         "question_id": "ACM-10",
-        "theme": "Updates",
         "question_text": "If the dataset is subject to updates, does it use a version control system?",
-        "grade": "Optional",
         "answer": "No",
         "score": 0,
         "justification": "Updated releases overwrite the prior file with no versioned history exposed. Only a single 'current' version is retrievable."
       },
       {
         "question_id": "ACM-11",
-        "theme": "Bias",
         "question_text": "Is consideration of bias documented in the metadata?",
-        "grade": "Important",
         "answer": "No",
         "score": 0,
         "justification": "The metadata does not discuss sampling or geographic bias. Spatial coverage is uneven but unacknowledged."
       },
       {
         "question_id": "ACM-12",
-        "theme": "Metadata",
         "question_text": "Does the dataset use a machine-readable, domain-appropriate metadata standard?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "Metadata is provided as EML within a Darwin Core Archive. Both are machine-readable, domain-standard formats for biodiversity data."
       },
       {
         "question_id": "ACM-13",
-        "theme": "Metadata",
         "question_text": "Does the metadata include the identifier of the dataset?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "The EML record embeds the dataset DOI in the packageId field. The identifier matches the registered DOI."
       },
       {
         "question_id": "ACM-14",
-        "theme": "Metadata",
         "question_text": "Does the metadata specify intended access controls?",
-        "grade": "Optional",
         "answer": "No",
         "score": 0,
         "justification": "No access-control statement is present in the metadata. The dataset is fully open, but this is not declared explicitly."
       },
       {
         "question_id": "ACM-15",
-        "theme": "Metadata",
         "question_text": "Does the metadata document the modalities used?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "The metadata describes the occurrence and sampling-event data types collected. Measurement modalities are listed per event."
       },
       {
         "question_id": "ACM-16",
-        "theme": "Preprocessing",
         "question_text": "Are transformation and preprocessing steps documented well enough to reproduce them?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "The EML methods section documents cleaning, taxonomic matching, and coordinate validation steps. The steps are detailed enough to reproduce."
       },
       {
         "question_id": "ACM-17",
-        "theme": "Provenance",
         "question_text": "Is the provenance of the dataset clearly documented?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "Collector, institution, and sampling protocol are recorded per event. The processing lineage is described in the metadata."
       },
       {
         "question_id": "ACM-18",
-        "theme": "Quality",
         "question_text": "Is the dataset free of duplicate records?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "Records carry unique occurrenceIDs and a deduplication step is documented. No duplicate identifiers were detected on inspection."
       },
       {
         "question_id": "ACM-19",
-        "theme": "Quality",
         "question_text": "Does the dataset include all expected records and content?",
-        "grade": "Important",
         "answer": "No",
         "score": 0,
         "justification": "Roughly 18% of records lack coordinate uncertainty and several event dates are year-only. Expected completeness for some fields is not met."
       },
       {
         "question_id": "ACM-20",
-        "theme": "Format",
         "question_text": "Are units, data types and parameter names consistent between entries?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "All entries use consistent Darwin Core term names and data types. Units for measurements are uniform across records."
       },
       {
         "question_id": "ACM-21",
-        "theme": "Standards",
         "question_text": "Does the dataset follow domain standards regarding units, data types, parameter names?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "Field names conform to the Darwin Core standard and taxa link to WoRMS. Units follow recognised biodiversity conventions."
       },
       {
         "question_id": "ACM-22",
-        "theme": "Format",
         "question_text": "Does the data use an appropriate file format?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "Data are distributed as CSV within a Darwin Core Archive. This is an appropriate, widely supported format for tabular occurrence data."
       },
       {
         "question_id": "ACM-23",
-        "theme": "Format",
         "question_text": "Is the data available in at least one open, non-proprietary format?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "CSV is open and non-proprietary. No proprietary tooling is needed to read the records."
       },
       {
         "question_id": "ACM-24",
-        "theme": "Ethics",
         "question_text": "If the dataset contains animal/human subject data, does it include ethical assessment of acquisition?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "The dataset records species occurrences and contains no human or animal subject data. This question defaults to 'Yes' as it is not applicable."
       },
       {
         "question_id": "ACM-25",
-        "theme": "Privacy",
         "question_text": "If the dataset contains human subject data, does it preserve subject privacy?",
-        "grade": "Critical",
         "answer": "Yes",
         "score": 80,
         "justification": "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable."
       },
       {
         "question_id": "ACM-26",
-        "theme": "Ethics",
         "question_text": "If the dataset contains human subject data, does it include ethical assessment of data management?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable."
       },
       {
         "question_id": "ACM-27",
-        "theme": "Security",
         "question_text": "If the dataset contains human subject data, does it have necessary authentication and access controls?",
-        "grade": "Important",
         "answer": "Yes",
         "score": 5,
         "justification": "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable."
       },
       {
         "question_id": "ACM-28",
-        "theme": "Metadata",
         "question_text": "If the dataset contains human subject data, does metadata document data protection declarations?",
-        "grade": "Optional",
         "answer": "Yes",
         "score": 2,
         "justification": "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable."

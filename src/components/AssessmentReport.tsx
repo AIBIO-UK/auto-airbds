@@ -1,15 +1,21 @@
 import { assessmentDetails } from "../types";
+import { questionMeta } from "../metrics";
 
 interface Props {
   data: unknown;
+  /** Metric version, used to look up each question's fixed theme and grade. */
+  metricVersion: string | null;
 }
 
 /**
  * Renders an assessment payload as a scoring-summary box above a table of
  * per-question results. Returns null when the payload has no recognisable
  * results, so callers can fall back to a raw view.
+ *
+ * Each question's theme and grade are taken from the metric definition for
+ * `metricVersion` (they are fixed per version), not from the uploaded payload.
  */
-export function AssessmentReport({ data }: Props) {
+export function AssessmentReport({ data, metricVersion }: Props) {
   const { results, summary, summaryJustification } = assessmentDetails(data);
 
   if (results.length === 0) return null;
@@ -47,34 +53,41 @@ export function AssessmentReport({ data }: Props) {
       </div>
 
       <div className="results-list">
-        {results.map((r, i) => (
-          <div className="result-card" key={r.questionId ?? i}>
-            <span className="field-label">ID:</span>
-            <span className="mono">{r.questionId ?? "—"}</span>
-            <span className="field-label">Theme:</span>
-            <span>{r.theme ?? "—"}</span>
-            <span className="field-label">Grade:</span>
-            <span>{r.grade ?? "—"}</span>
-            <span className="field-label">Question:</span>
-            <span>{r.questionText ?? "—"}</span>
-            <span className="field-label">Answer:</span>
-            <span
-              className={
-                r.answer === "Yes"
-                  ? "answer-yes"
-                  : r.answer === "No"
-                    ? "answer-no"
-                    : undefined
-              }
-            >
-              {r.answer ?? "—"}
-            </span>
-            <span className="field-label">Score:</span>
-            <span>{r.score ?? "—"}</span>
-            <span className="field-label">Justification:</span>
-            <span>{r.justification ?? "—"}</span>
-          </div>
-        ))}
+        {results.map((r, i) => {
+          // Theme and grade are fixed per metric version; fall back to the
+          // payload's own values only when the version is unknown.
+          const meta = questionMeta(metricVersion, r.questionId);
+          const theme = meta?.theme ?? r.theme;
+          const grade = meta?.grade ?? r.grade;
+          return (
+            <div className="result-card" key={r.questionId ?? i}>
+              <span className="field-label">ID:</span>
+              <span className="mono">{r.questionId ?? "—"}</span>
+              <span className="field-label">Theme:</span>
+              <span>{theme ?? "—"}</span>
+              <span className="field-label">Grade:</span>
+              <span>{grade ?? "—"}</span>
+              <span className="field-label">Question:</span>
+              <span>{r.questionText ?? "—"}</span>
+              <span className="field-label">Answer:</span>
+              <span
+                className={
+                  r.answer === "Yes"
+                    ? "answer-yes"
+                    : r.answer === "No"
+                      ? "answer-no"
+                      : undefined
+                }
+              >
+                {r.answer ?? "—"}
+              </span>
+              <span className="field-label">Score:</span>
+              <span>{r.score ?? "—"}</span>
+              <span className="field-label">Justification:</span>
+              <span>{r.justification ?? "—"}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
