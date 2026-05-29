@@ -60,7 +60,7 @@ If you recreate the database, update `database_id` under `[[d1_databases]]` in `
 
 ### Test upload scripts
 
-Scripts that upload `scripts/example-assessment-1.json` and report success or the server's error message:
+Scripts that upload `scripts/example-assessment-1.json` and report success or the server's error message. Each run rewrites the assessment's `assessment_timestamp` to the current time, so uploads reflect when the script was invoked:
 
 ```bash
 # Against a local `wrangler pages dev` server
