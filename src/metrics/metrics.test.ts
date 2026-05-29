@@ -11,7 +11,7 @@ describe("metric question lookup (AIRBDS 0.3)", () => {
     expect(questionMeta("0.3", "ACM-4")).toEqual({
       theme: "Licence",
       grade: "Critical",
-      text: "Is the dataset provided with a clear data-use license?",
+      text: "Is the dataset released with a clear licence or terms of use?",
     });
     expect(questionMeta("0.3", "ACM-28")?.theme).toBe("Metadata");
     expect(questionMeta("0.3", "ACM-28")?.grade).toBe("Optional");

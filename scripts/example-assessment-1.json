@@ -22,12 +22,12 @@
       {
         "question_id": "ACM-2",
         "answer": "Yes",
-        "justification": "Records are served over HTTPS through a public GBIF IPT endpoint. The protocol is open and well documented."
+        "justification": "Metadata is packaged as EML within the same Darwin Core Archive as the data. It is also displayed on the dataset's GBIF landing page."
       },
       {
         "question_id": "ACM-3",
         "answer": "Yes",
-        "justification": "The hosting platform supports OAuth-based authentication for restricted resources. It is not required for this open dataset but is available."
+        "justification": "The Darwin Core Archive download is accompanied by a published MD5 checksum. Downloads can be verified against it before use."
       },
       {
         "question_id": "ACM-4",
@@ -37,12 +37,12 @@
       {
         "question_id": "ACM-5",
         "answer": "Yes",
-        "justification": "CC0 places the data in the public domain with no restrictions on reuse. Training of AI/ML models is therefore permitted."
+        "justification": "The licence is CC0 1.0, a standard Creative Commons licence. It is expressed as a resolvable URI, making it machine-readable."
       },
       {
         "question_id": "ACM-6",
         "answer": "Yes",
-        "justification": "A single Darwin Core Archive bundle is downloadable from the portal. No record-by-record harvesting is required."
+        "justification": "The dataset is published through a GBIF-connected IPT, which is FAIR-compliant. It provides persistent identifiers, rich metadata, and standardised access."
       },
       {
         "question_id": "ACM-7",

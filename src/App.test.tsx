@@ -171,7 +171,7 @@ describe("App routing", () => {
       screen.getByText("Can the dataset be accessed in its entirety?")
     ).toBeInTheDocument(); // ACM-1 text
     expect(
-      screen.getByText("Is the dataset provided with a clear data-use license?")
+      screen.getByText("Is the dataset released with a clear licence or terms of use?")
     ).toBeInTheDocument(); // ACM-4 text
     expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
