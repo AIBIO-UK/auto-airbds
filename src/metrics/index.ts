@@ -7,10 +7,16 @@ export interface QuestionMeta {
 
 export type QuestionMap = Record<string, QuestionMeta>;
 
-// Registry of known AIRBDS metric versions → question definitions, keyed by
-// the version string found in an assessment's `metric.version`. Add a new
+interface MetricDefinition {
+  questions: QuestionMap;
+  /** Full points awarded for a "Yes" answer, keyed by grade. */
+  gradePoints: Record<string, number>;
+}
+
+// Registry of known AIRBDS metric versions → definitions, keyed by the version
+// string found in an assessment's `metric.version`. Add a new
 // `airbds-<version>.yaml`, import it here, and register it to support a version.
-const REGISTRY: Record<string, QuestionMap> = {
+const REGISTRY: Record<string, MetricDefinition> = {
   "0.3": parseMetric(airbds03, "airbds-0.3.yaml"),
 };
 
@@ -20,7 +26,27 @@ export function questionMeta(
   questionId: string | null | undefined
 ): QuestionMeta | null {
   if (!version || !questionId) return null;
-  return REGISTRY[version]?.[questionId] ?? null;
+  return REGISTRY[version]?.questions[questionId] ?? null;
+}
+
+/**
+ * Compute a question's score from its grade and answer, per the metric
+ * version: a "Yes" earns the full points for the question's grade, a "No"
+ * scores 0. Returns null when the version, question, answer, or grade points
+ * are unknown, so callers can fall back.
+ */
+export function questionScore(
+  version: string | null | undefined,
+  questionId: string | null | undefined,
+  answer: string | null | undefined
+): number | null {
+  if (!version || !questionId) return null;
+  const def = REGISTRY[version];
+  const meta = def?.questions[questionId];
+  if (!def || !meta) return null;
+  if (answer === "No") return 0;
+  if (answer === "Yes") return def.gradePoints[meta.grade] ?? null;
+  return null;
 }
 
 /** Whether question definitions are available for the given metric version. */
@@ -29,15 +55,31 @@ export function hasMetricVersion(version: string | null | undefined): boolean {
 }
 
 /**
- * Validate and normalise a parsed metric YAML file into a question map.
- * Throws at load time if the file is malformed, so a bad definition fails
- * loudly rather than silently dropping questions.
+ * Validate and normalise a parsed metric YAML file into a definition. Throws
+ * at load time if the file is malformed, so a bad definition fails loudly
+ * rather than silently dropping questions or mis-scoring.
  */
-function parseMetric(raw: unknown, source: string): QuestionMap {
+function parseMetric(raw: unknown, source: string): MetricDefinition {
   if (!isRecord(raw) || !isRecord(raw.questions)) {
     throw new Error(`Invalid metric file ${source}: expected a "questions" map`);
   }
-  const map: QuestionMap = {};
+  if (!isRecord(raw.grade_points)) {
+    throw new Error(
+      `Invalid metric file ${source}: expected a "grade_points" map`
+    );
+  }
+
+  const gradePoints: Record<string, number> = {};
+  for (const [grade, points] of Object.entries(raw.grade_points)) {
+    if (typeof points !== "number" || !Number.isFinite(points)) {
+      throw new Error(
+        `Invalid metric file ${source}: grade "${grade}" needs a numeric point value`
+      );
+    }
+    gradePoints[grade] = points;
+  }
+
+  const questions: QuestionMap = {};
   for (const [id, value] of Object.entries(raw.questions)) {
     if (
       !isRecord(value) ||
@@ -48,9 +90,15 @@ function parseMetric(raw: unknown, source: string): QuestionMap {
         `Invalid metric file ${source}: question "${id}" needs string theme and grade`
       );
     }
-    map[id] = { theme: value.theme, grade: value.grade };
+    if (!(value.grade in gradePoints)) {
+      throw new Error(
+        `Invalid metric file ${source}: question "${id}" has grade "${value.grade}" with no grade_points entry`
+      );
+    }
+    questions[id] = { theme: value.theme, grade: value.grade };
   }
-  return map;
+
+  return { questions, gradePoints };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

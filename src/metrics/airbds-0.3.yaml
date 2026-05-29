@@ -9,6 +9,14 @@
 
 version: "0.3"
 
+# Full points awarded for a question when its answer is "Yes", keyed by the
+# question's grade. A "No" answer always scores 0. A question's score is
+# therefore fixed by its grade and answer, not taken from the assessment.
+grade_points:
+  Critical: 80
+  Important: 5
+  Optional: 2
+
 questions:
   ACM-1: { theme: Access, grade: Important }
   ACM-2: { theme: Access, grade: Important }

@@ -106,8 +106,8 @@ describe("App routing", () => {
           metric: { version: "0.3" },
           dataset: { title: "Some Dataset", source_url: "https://ex.org/d" },
           metadata: { model: "claude-opus-4-7" },
-          // Theme and grade below are deliberately wrong: they should be
-          // ignored in favour of the metric-version definitions.
+          // Theme, grade and score below are deliberately wrong: they should
+          // be ignored in favour of the metric-version definitions.
           results: [
             {
               question_id: "ACM-1",
@@ -115,7 +115,7 @@ describe("App routing", () => {
               question_text: "Can the dataset be accessed in its entirety?",
               grade: "BOGUS-GRADE-1",
               answer: "Yes",
-              score: 5,
+              score: 999,
               justification: "The full set of records is retrievable.",
             },
             {
@@ -124,7 +124,7 @@ describe("App routing", () => {
               question_text: "Is the dataset provided with a clear license?",
               grade: "BOGUS-GRADE-4",
               answer: "No",
-              score: 0,
+              score: 888,
               justification: "No licence is stated.",
             },
           ],
@@ -165,6 +165,13 @@ describe("App routing", () => {
     expect(screen.getByText("Critical")).toBeInTheDocument(); // ACM-4 grade
     expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
+
+    // Score is derived from grade + answer, not the payload: ACM-1 (Important,
+    // Yes) = 5, ACM-4 (Critical, No) = 0. The payload's bogus scores are ignored.
+    expect(screen.getByText("5")).toBeInTheDocument();
+    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.queryByText("999")).not.toBeInTheDocument();
+    expect(screen.queryByText("888")).not.toBeInTheDocument();
 
     // The raw JSON dump is no longer shown for a recognised assessment.
     expect(screen.queryByText(/"weighted_score"/)).not.toBeInTheDocument();

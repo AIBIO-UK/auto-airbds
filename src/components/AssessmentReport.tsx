@@ -1,5 +1,5 @@
 import { assessmentDetails } from "../types";
-import { questionMeta } from "../metrics";
+import { questionMeta, questionScore } from "../metrics";
 
 interface Props {
   data: unknown;
@@ -54,11 +54,13 @@ export function AssessmentReport({ data, metricVersion }: Props) {
 
       <div className="results-list">
         {results.map((r, i) => {
-          // Theme and grade are fixed per metric version; fall back to the
+          // Theme, grade, and score are fixed per metric version (the score is
+          // derived from the grade and the Yes/No answer); fall back to the
           // payload's own values only when the version is unknown.
           const meta = questionMeta(metricVersion, r.questionId);
           const theme = meta?.theme ?? r.theme;
           const grade = meta?.grade ?? r.grade;
+          const score = questionScore(metricVersion, r.questionId, r.answer) ?? r.score;
           return (
             <div className="result-card" key={r.questionId ?? i}>
               <span className="field-label">ID:</span>
@@ -82,7 +84,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
                 {r.answer ?? "—"}
               </span>
               <span className="field-label">Score:</span>
-              <span>{r.score ?? "—"}</span>
+              <span>{score ?? "—"}</span>
               <span className="field-label">Justification:</span>
               <span>{r.justification ?? "—"}</span>
             </div>
