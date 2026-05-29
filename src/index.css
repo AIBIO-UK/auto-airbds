@@ -197,17 +197,21 @@ h1 {
 }
 
 /* Same two-column key/value layout and styling as the list entries. */
-.entry-fields {
+.entry-fields,
+.result-card {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 4px 12px;
   align-items: baseline;
-  margin-bottom: 16px;
   padding: 10px 12px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 13px;
+}
+
+.entry-fields {
+  margin-bottom: 16px;
 }
 
 .entry-view pre {
@@ -278,56 +282,26 @@ h1 {
   margin: 6px 0 0;
 }
 
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+/* Per-question results, each laid out like the metadata summary box:
+   labels on the left, values on the right. */
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.results-table th,
-.results-table td {
-  text-align: left;
-  vertical-align: top;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-.results-table th {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: #94a3b8;
-  border-bottom-width: 2px;
-}
-
-.results-table th.num,
-.results-table td.num {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.results-table .mono {
+.result-card .mono {
   font-family: var(--mono);
-  white-space: nowrap;
 }
 
-.results-table .justification {
-  color: #475569;
-  min-width: 200px;
-}
-
-.results-table .answer-yes {
+.result-card .answer-yes {
   color: #15803d;
   font-weight: 600;
 }
 
-.results-table .answer-no {
+.result-card .answer-no {
   color: #b91c1c;
   font-weight: 600;
-}
-
-.results-table tbody tr:hover {
-  background: var(--code-bg);
 }
 
 .empty {

@@ -46,42 +46,36 @@ export function AssessmentReport({ data }: Props) {
         )}
       </div>
 
-      <table className="results-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Theme</th>
-            <th>Question</th>
-            <th>Grade</th>
-            <th>Answer</th>
-            <th className="num">Score</th>
-            <th>Justification</th>
-          </tr>
-        </thead>
-        <tbody>
-          {results.map((r, i) => (
-            <tr key={r.questionId ?? i}>
-              <td className="mono">{r.questionId ?? "—"}</td>
-              <td>{r.theme ?? "—"}</td>
-              <td>{r.questionText ?? "—"}</td>
-              <td>{r.grade ?? "—"}</td>
-              <td
-                className={
-                  r.answer === "Yes"
-                    ? "answer-yes"
-                    : r.answer === "No"
-                      ? "answer-no"
-                      : undefined
-                }
-              >
-                {r.answer ?? "—"}
-              </td>
-              <td className="num">{r.score ?? "—"}</td>
-              <td className="justification">{r.justification ?? "—"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="results-list">
+        {results.map((r, i) => (
+          <div className="result-card" key={r.questionId ?? i}>
+            <span className="field-label">ID:</span>
+            <span className="mono">{r.questionId ?? "—"}</span>
+            <span className="field-label">Theme:</span>
+            <span>{r.theme ?? "—"}</span>
+            <span className="field-label">Grade:</span>
+            <span>{r.grade ?? "—"}</span>
+            <span className="field-label">Question:</span>
+            <span>{r.questionText ?? "—"}</span>
+            <span className="field-label">Answer:</span>
+            <span
+              className={
+                r.answer === "Yes"
+                  ? "answer-yes"
+                  : r.answer === "No"
+                    ? "answer-no"
+                    : undefined
+              }
+            >
+              {r.answer ?? "—"}
+            </span>
+            <span className="field-label">Score:</span>
+            <span>{r.score ?? "—"}</span>
+            <span className="field-label">Justification:</span>
+            <span>{r.justification ?? "—"}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
