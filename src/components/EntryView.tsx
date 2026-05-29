@@ -1,5 +1,6 @@
-import { datasetInfo, type UploadEntry } from "../types";
+import { assessmentDetails, datasetInfo, type UploadEntry } from "../types";
 import { formatTimestamp } from "../format";
+import { AssessmentReport } from "./AssessmentReport";
 
 interface Props {
   entry: UploadEntry;
@@ -8,6 +9,7 @@ interface Props {
 
 export function EntryView({ entry, onBack }: Props) {
   const { title, sourceUrl, assessedAt, model } = datasetInfo(entry.data);
+  const hasReport = assessmentDetails(entry.data).results.length > 0;
 
   return (
     <div className="entry-view">
@@ -28,7 +30,11 @@ export function EntryView({ entry, onBack }: Props) {
         <span className="field-label">ID:</span>
         <span className="entry-id">{entry.id}</span>
       </div>
-      <pre>{JSON.stringify(entry.data, null, 2)}</pre>
+      {hasReport ? (
+        <AssessmentReport data={entry.data} />
+      ) : (
+        <pre>{JSON.stringify(entry.data, null, 2)}</pre>
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ An experimental website for collecting, processing and publishing AI-performed A
 
 - **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, `DELETE /api/entries/:id`)
 - **Cloudflare D1** — strongly-consistent SQLite database storing uploads, so new entries are visible to readers immediately
-- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page lists the assessments; clicking one opens its JSON on a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config)
+- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw JSON if the payload isn't a recognised assessment
 - **Vite** — build tool and dev server
 
 ## Configuration

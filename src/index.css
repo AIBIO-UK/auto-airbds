@@ -222,6 +222,114 @@ h1 {
   margin: 0;
 }
 
+/* Scoring summary box, shown above the results table. */
+.summary-box {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.summary-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.summary-score {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.summary-score-sep {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.summary-grade {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.summary-grade.grade-gold {
+  background: #fef3c7;
+  color: #92400e;
+}
+.summary-grade.grade-silver {
+  background: #e2e8f0;
+  color: #475569;
+}
+.summary-grade.grade-bronze {
+  background: #fde7d3;
+  color: #9a3412;
+}
+
+.summary-field {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.results-table th,
+.results-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.results-table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #94a3b8;
+  border-bottom-width: 2px;
+}
+
+.results-table th.num,
+.results-table td.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.results-table .mono {
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.results-table .justification {
+  color: #475569;
+  min-width: 200px;
+}
+
+.results-table .answer-yes {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.results-table .answer-no {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.results-table tbody tr:hover {
+  background: var(--code-bg);
+}
+
 .empty {
   color: #94a3b8;
   font-size: 14px;

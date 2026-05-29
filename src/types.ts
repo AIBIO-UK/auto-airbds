@@ -40,6 +40,76 @@ export function datasetInfo(data: unknown): DatasetInfo {
   };
 }
 
+export interface ResultRow {
+  questionId: string | null;
+  theme: string | null;
+  questionText: string | null;
+  grade: string | null;
+  answer: string | null;
+  score: number | null;
+  justification: string | null;
+}
+
+export interface ScoringSummary {
+  weightedScore: number | null;
+  maxPossible: number | null;
+  grade: string | null;
+  gradeRationale: string | null;
+}
+
+export interface AssessmentDetails {
+  results: ResultRow[];
+  summary: ScoringSummary;
+  summaryJustification: string | null;
+}
+
+/**
+ * Safely pull the per-question results and scoring summary out of an
+ * assessment payload. `data` is untrusted/unknown, so every level is guarded;
+ * a payload that does not match the expected shape yields empty results and
+ * null summary fields.
+ */
+export function assessmentDetails(data: unknown): AssessmentDetails {
+  const assessment =
+    isRecord(data) && isRecord(data.assessment) ? data.assessment : null;
+
+  const rawResults =
+    assessment && Array.isArray(assessment.results) ? assessment.results : [];
+  const results: ResultRow[] = rawResults.filter(isRecord).map((r) => ({
+    questionId: str(r.question_id),
+    theme: str(r.theme),
+    questionText: str(r.question_text),
+    grade: str(r.grade),
+    answer: str(r.answer),
+    score: num(r.score),
+    justification: str(r.justification),
+  }));
+
+  const summaryObj =
+    assessment && isRecord(assessment.scoring_summary)
+      ? assessment.scoring_summary
+      : null;
+
+  return {
+    results,
+    summary: {
+      weightedScore: summaryObj ? num(summaryObj.weighted_score) : null,
+      maxPossible: summaryObj ? num(summaryObj.max_possible) : null,
+      grade: summaryObj ? str(summaryObj.grade) : null,
+      gradeRationale: summaryObj ? str(summaryObj.grade_rationale) : null,
+    },
+    summaryJustification: assessment ? str(assessment.summary_justification) : null,
+  };
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function str(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function num(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
