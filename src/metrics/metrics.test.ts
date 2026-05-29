@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest";
 import { questionMeta, questionScore, hasMetricVersion } from "./index";
 
 describe("metric question lookup (AIRBDS 0.3)", () => {
-  it("returns the fixed theme and grade for known questions", () => {
+  it("returns the fixed theme, grade and text for known questions", () => {
     expect(questionMeta("0.3", "ACM-1")).toEqual({
       theme: "Access",
       grade: "Important",
+      text: "Can the dataset be accessed in its entirety?",
     });
     expect(questionMeta("0.3", "ACM-4")).toEqual({
       theme: "License",
       grade: "Critical",
+      text: "Is the dataset provided with a clear data-use license?",
     });
-    expect(questionMeta("0.3", "ACM-28")).toEqual({
-      theme: "Metadata",
-      grade: "Optional",
-    });
+    expect(questionMeta("0.3", "ACM-28")?.theme).toBe("Metadata");
+    expect(questionMeta("0.3", "ACM-28")?.grade).toBe("Optional");
   });
 
   it("returns null for unknown versions, questions, or missing args", () => {

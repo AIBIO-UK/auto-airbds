@@ -3,6 +3,7 @@ import airbds03 from "./airbds-0.3.yaml";
 export interface QuestionMeta {
   theme: string;
   grade: string;
+  text: string;
 }
 
 export type QuestionMap = Record<string, QuestionMeta>;
@@ -84,10 +85,11 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
     if (
       !isRecord(value) ||
       typeof value.theme !== "string" ||
-      typeof value.grade !== "string"
+      typeof value.grade !== "string" ||
+      typeof value.text !== "string"
     ) {
       throw new Error(
-        `Invalid metric file ${source}: question "${id}" needs string theme and grade`
+        `Invalid metric file ${source}: question "${id}" needs string theme, grade and text`
       );
     }
     if (!(value.grade in gradePoints)) {
@@ -95,7 +97,7 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
         `Invalid metric file ${source}: question "${id}" has grade "${value.grade}" with no grade_points entry`
       );
     }
-    questions[id] = { theme: value.theme, grade: value.grade };
+    questions[id] = { theme: value.theme, grade: value.grade, text: value.text };
   }
 
   return { questions, gradePoints };

@@ -106,13 +106,13 @@ describe("App routing", () => {
           metric: { version: "0.3" },
           dataset: { title: "Some Dataset", source_url: "https://ex.org/d" },
           metadata: { model: "claude-opus-4-7" },
-          // Theme, grade and score below are deliberately wrong: they should
-          // be ignored in favour of the metric-version definitions.
+          // Theme, grade, question text and score below are deliberately
+          // wrong: they should be ignored in favour of the metric definitions.
           results: [
             {
               question_id: "ACM-1",
               theme: "BOGUS-THEME-1",
-              question_text: "Can the dataset be accessed in its entirety?",
+              question_text: "BOGUS-QUESTION-1",
               grade: "BOGUS-GRADE-1",
               answer: "Yes",
               score: 999,
@@ -121,7 +121,7 @@ describe("App routing", () => {
             {
               question_id: "ACM-4",
               theme: "BOGUS-THEME-4",
-              question_text: "Is the dataset provided with a clear license?",
+              question_text: "BOGUS-QUESTION-4",
               grade: "BOGUS-GRADE-4",
               answer: "No",
               score: 888,
@@ -155,16 +155,21 @@ describe("App routing", () => {
     // Results rows.
     expect(screen.getByText("ACM-1")).toBeInTheDocument();
     expect(screen.getByText("ACM-4")).toBeInTheDocument();
-    expect(
-      screen.getByText("Can the dataset be accessed in its entirety?")
-    ).toBeInTheDocument();
 
-    // Theme and grade come from the AIRBDS 0.3 definitions, not the payload.
+    // Theme, grade and question text come from the AIRBDS 0.3 definitions,
+    // not the payload.
     expect(screen.getByText("Access")).toBeInTheDocument(); // ACM-1 theme
     expect(screen.getByText("License")).toBeInTheDocument(); // ACM-4 theme
     expect(screen.getByText("Critical")).toBeInTheDocument(); // ACM-4 grade
+    expect(
+      screen.getByText("Can the dataset be accessed in its entirety?")
+    ).toBeInTheDocument(); // ACM-1 text
+    expect(
+      screen.getByText("Is the dataset provided with a clear data-use license?")
+    ).toBeInTheDocument(); // ACM-4 text
     expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
+    expect(screen.queryByText("BOGUS-QUESTION-1")).not.toBeInTheDocument();
 
     // Score is derived from grade + answer, not the payload: ACM-1 (Important,
     // Yes) = 5, ACM-4 (Critical, No) = 0. The payload's bogus scores are ignored.

@@ -18,31 +18,115 @@ grade_points:
   Optional: 2
 
 questions:
-  ACM-1: { theme: Access, grade: Important }
-  ACM-2: { theme: Access, grade: Important }
-  ACM-3: { theme: Access, grade: Optional }
-  ACM-4: { theme: License, grade: Critical }
-  ACM-5: { theme: License, grade: Critical }
-  ACM-6: { theme: Download, grade: Important }
-  ACM-7: { theme: Resource, grade: Optional }
-  ACM-8: { theme: Resource, grade: Optional }
-  ACM-9: { theme: UID, grade: Critical }
-  ACM-10: { theme: Updates, grade: Optional }
-  ACM-11: { theme: Bias, grade: Important }
-  ACM-12: { theme: Metadata, grade: Critical }
-  ACM-13: { theme: Metadata, grade: Critical }
-  ACM-14: { theme: Metadata, grade: Optional }
-  ACM-15: { theme: Metadata, grade: Optional }
-  ACM-16: { theme: Preprocessing, grade: Important }
-  ACM-17: { theme: Provenance, grade: Critical }
-  ACM-18: { theme: Quality, grade: Important }
-  ACM-19: { theme: Quality, grade: Important }
-  ACM-20: { theme: Format, grade: Critical }
-  ACM-21: { theme: Standards, grade: Important }
-  ACM-22: { theme: Format, grade: Optional }
-  ACM-23: { theme: Format, grade: Optional }
-  ACM-24: { theme: Ethics, grade: Critical }
-  ACM-25: { theme: Privacy, grade: Critical }
-  ACM-26: { theme: Ethics, grade: Important }
-  ACM-27: { theme: Security, grade: Important }
-  ACM-28: { theme: Metadata, grade: Optional }
+  ACM-1:
+    theme: Access
+    grade: Important
+    text: "Can the dataset be accessed in its entirety?"
+  ACM-2:
+    theme: Access
+    grade: Important
+    text: "Is there a standardised communications protocol for accessing the dataset?"
+  ACM-3:
+    theme: Access
+    grade: Optional
+    text: "Does the access protocol allow for authentication and authorisation where necessary?"
+  ACM-4:
+    theme: License
+    grade: Critical
+    text: "Is the dataset provided with a clear data-use license?"
+  ACM-5:
+    theme: License
+    grade: Critical
+    text: "Does the dataset's license permit use in AI/ML model training?"
+  ACM-6:
+    theme: Download
+    grade: Important
+    text: "Is there a mechanism to download the entire dataset at once?"
+  ACM-7:
+    theme: Resource
+    grade: Optional
+    text: "Is the hosting resource specifically designed for scientific data?"
+  ACM-8:
+    theme: Resource
+    grade: Optional
+    text: "Is the dataset hosted in a searchable infrastructure?"
+  ACM-9:
+    theme: UID
+    grade: Critical
+    text: "Does the dataset have a globally unique, persistent identifier?"
+  ACM-10:
+    theme: Updates
+    grade: Optional
+    text: "If the dataset is subject to updates, does it use a version control system?"
+  ACM-11:
+    theme: Bias
+    grade: Important
+    text: "Is consideration of bias documented in the metadata?"
+  ACM-12:
+    theme: Metadata
+    grade: Critical
+    text: "Does the dataset use a machine-readable, domain-appropriate metadata standard?"
+  ACM-13:
+    theme: Metadata
+    grade: Critical
+    text: "Does the metadata include the identifier of the dataset?"
+  ACM-14:
+    theme: Metadata
+    grade: Optional
+    text: "Does the metadata specify intended access controls?"
+  ACM-15:
+    theme: Metadata
+    grade: Optional
+    text: "Does the metadata document the modalities used?"
+  ACM-16:
+    theme: Preprocessing
+    grade: Important
+    text: "Are transformation and preprocessing steps documented well enough to reproduce them?"
+  ACM-17:
+    theme: Provenance
+    grade: Critical
+    text: "Is the provenance of the dataset clearly documented?"
+  ACM-18:
+    theme: Quality
+    grade: Important
+    text: "Is the dataset free of duplicate records?"
+  ACM-19:
+    theme: Quality
+    grade: Important
+    text: "Does the dataset include all expected records and content?"
+  ACM-20:
+    theme: Format
+    grade: Critical
+    text: "Are units, data types and parameter names consistent between entries?"
+  ACM-21:
+    theme: Standards
+    grade: Important
+    text: "Does the dataset follow domain standards regarding units, data types, parameter names?"
+  ACM-22:
+    theme: Format
+    grade: Optional
+    text: "Does the data use an appropriate file format?"
+  ACM-23:
+    theme: Format
+    grade: Optional
+    text: "Is the data available in at least one open, non-proprietary format?"
+  ACM-24:
+    theme: Ethics
+    grade: Critical
+    text: "If the dataset contains animal/human subject data, does it include ethical assessment of acquisition?"
+  ACM-25:
+    theme: Privacy
+    grade: Critical
+    text: "If the dataset contains human subject data, does it preserve subject privacy?"
+  ACM-26:
+    theme: Ethics
+    grade: Important
+    text: "If the dataset contains human subject data, does it include ethical assessment of data management?"
+  ACM-27:
+    theme: Security
+    grade: Important
+    text: "If the dataset contains human subject data, does it have necessary authentication and access controls?"
+  ACM-28:
+    theme: Metadata
+    grade: Optional
+    text: "If the dataset contains human subject data, does metadata document data protection declarations?"

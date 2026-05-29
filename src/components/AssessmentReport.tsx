@@ -54,12 +54,14 @@ export function AssessmentReport({ data, metricVersion }: Props) {
 
       <div className="results-list">
         {results.map((r, i) => {
-          // Theme, grade, and score are fixed per metric version (the score is
-          // derived from the grade and the Yes/No answer); fall back to the
-          // payload's own values only when the version is unknown.
+          // Theme, grade, question text, and score are fixed per metric
+          // version (the score is derived from the grade and the Yes/No
+          // answer); fall back to the payload's own values only when the
+          // version is unknown.
           const meta = questionMeta(metricVersion, r.questionId);
           const theme = meta?.theme ?? r.theme;
           const grade = meta?.grade ?? r.grade;
+          const questionText = meta?.text ?? r.questionText;
           const score = questionScore(metricVersion, r.questionId, r.answer) ?? r.score;
           return (
             <div className="result-card" key={r.questionId ?? i}>
@@ -70,7 +72,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
               <span className="field-label">Grade:</span>
               <span>{grade ?? "—"}</span>
               <span className="field-label">Question:</span>
-              <span>{r.questionText ?? "—"}</span>
+              <span>{questionText ?? "—"}</span>
               <span className="field-label">Answer:</span>
               <span
                 className={

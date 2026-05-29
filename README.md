@@ -9,9 +9,9 @@ An experimental website for collecting, processing and publishing AI-performed A
 
 ## Metric definitions
 
-For a given AIRBDS metric version, each question's **theme** and **grade** are fixed (e.g. `ACM-1` is always Access/Important, `ACM-4` is always License/Critical). These are defined in [`src/metrics/`](./src/metrics/), one language-neutral YAML file per version named by version (`airbds-<version>.yaml`), and are the source of truth — the theme/grade in uploaded assessments are ignored in favour of these.
+For a given AIRBDS metric version, each question's **theme**, **grade**, and **text** are fixed (e.g. `ACM-1` is always Access/Important, `ACM-4` is always License/Critical), as is its **score**: a `Yes` answer earns the full points for the question's grade (`grade_points`, e.g. Critical 80 / Important 5 / Optional 2) and a `No` scores 0. These are defined in [`src/metrics/`](./src/metrics/), one language-neutral YAML file per version named by version (`airbds-<version>.yaml`), and are the source of truth — the corresponding fields in uploaded assessments are ignored in favour of these.
 
-[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` for lookups; the assessment view uses it to display each question's theme and grade. To support a new version, add `airbds-<version>.yaml` and register it in `index.ts`.
+[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` (theme/grade/text) and `questionScore(version, questionId, answer)`; the assessment view uses them to display each question. Definitions are validated at load, so a malformed file fails loudly. To support a new version, add `airbds-<version>.yaml` and register it in `index.ts`.
 
 ## Configuration
 
