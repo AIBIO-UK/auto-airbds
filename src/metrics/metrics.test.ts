@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { questionMeta, questionScore, maxScore, hasMetricVersion } from "./index";
+import {
+  questionMeta,
+  questionScore,
+  questionMaxScore,
+  maxScore,
+  hasMetricVersion,
+} from "./index";
 
 describe("metric question lookup (AIRBDS 0.3)", () => {
   it("returns the fixed theme, grade and text for known questions", () => {
@@ -33,6 +39,14 @@ describe("metric question lookup (AIRBDS 0.3)", () => {
     expect(questionScore("0.3", "ACM-4", "Yes")).toBe(80);
     expect(questionScore("0.3", "ACM-4", "No")).toBe(0);
     expect(questionScore("0.3", "ACM-1", "No")).toBe(0);
+  });
+
+  it("reports a question's full (max) score from its grade", () => {
+    expect(questionMaxScore("0.3", "ACM-1")).toBe(5); // Important
+    expect(questionMaxScore("0.3", "ACM-4")).toBe(80); // Critical
+    expect(questionMaxScore("0.3", "ACM-3")).toBe(2); // Optional
+    expect(questionMaxScore("0.3", "ACM-999")).toBeNull();
+    expect(questionMaxScore(null, "ACM-1")).toBeNull();
   });
 
   it("returns null score for unknown versions/questions or non-Yes/No answers", () => {

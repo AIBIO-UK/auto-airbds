@@ -68,6 +68,21 @@ export function maxScore(version: string | null | undefined): number | null {
   return total;
 }
 
+/**
+ * The full points a question can earn (its grade's points), i.e. the score
+ * for a "Yes" answer. Returns null when the version or question is unknown.
+ */
+export function questionMaxScore(
+  version: string | null | undefined,
+  questionId: string | null | undefined
+): number | null {
+  if (!version || !questionId) return null;
+  const def = REGISTRY[version];
+  const meta = def?.questions[questionId];
+  if (!def || !meta) return null;
+  return def.gradePoints[meta.grade] ?? null;
+}
+
 /** Whether question definitions are available for the given metric version. */
 export function hasMetricVersion(version: string | null | undefined): boolean {
   return !!version && version in REGISTRY;

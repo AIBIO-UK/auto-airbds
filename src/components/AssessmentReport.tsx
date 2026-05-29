@@ -1,5 +1,10 @@
 import { assessmentDetails } from "../types";
-import { maxScore, questionMeta, questionScore } from "../metrics";
+import {
+  maxScore,
+  questionMaxScore,
+  questionMeta,
+  questionScore,
+} from "../metrics";
 
 interface Props {
   data: unknown;
@@ -78,7 +83,14 @@ export function AssessmentReport({ data, metricVersion }: Props) {
           const theme = meta?.theme ?? r.theme;
           const grade = meta?.grade ?? r.grade;
           const questionText = meta?.text ?? r.questionText;
-          const score = questionScore(metricVersion, r.questionId, r.answer) ?? r.score;
+          // Show "<actual>/<full>" when the metric defines the question;
+          // otherwise fall back to the payload's own score.
+          const fullScore = questionMaxScore(metricVersion, r.questionId);
+          const actualScore = questionScore(metricVersion, r.questionId, r.answer);
+          const scoreDisplay =
+            fullScore !== null
+              ? `${actualScore ?? "—"}/${fullScore}`
+              : (r.score ?? "—");
           return (
             <div className="result-card" key={r.questionId ?? i}>
               <span className="field-label">ID:</span>
@@ -104,7 +116,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
                 {r.answer ?? "—"}
               </span>
               <span className="field-label">Score:</span>
-              <span>{score ?? "—"}</span>
+              <span>{scoreDisplay}</span>
               <span className="field-label">Justification:</span>
               <span>{r.justification ?? "—"}</span>
             </div>

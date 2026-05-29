@@ -179,11 +179,11 @@ describe("App routing", () => {
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-QUESTION-1")).not.toBeInTheDocument();
 
-    // Per-question score is derived from grade + answer, not the payload:
-    // ACM-1 (Important, Yes) = 5, ACM-4 (Critical, Yes) = 80. Bogus payload
-    // scores are ignored.
-    expect(screen.getByText("5")).toBeInTheDocument();
-    expect(screen.getByText("80")).toBeInTheDocument();
+    // Per-question score is derived from grade + answer and shown as
+    // "<actual>/<full>": ACM-1 (Important, Yes) = 5/5, ACM-4 (Critical,
+    // Yes) = 80/80. Bogus payload scores are ignored.
+    expect(screen.getByText("5/5")).toBeInTheDocument();
+    expect(screen.getByText("80/80")).toBeInTheDocument();
     expect(screen.queryByText("999")).not.toBeInTheDocument();
     expect(screen.queryByText("888")).not.toBeInTheDocument();
 
