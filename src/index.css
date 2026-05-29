@@ -67,18 +67,24 @@ h1 {
   padding: 32px 24px;
 }
 
-.main {
-  display: flex;
-  gap: 24px;
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font: inherit;
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-nav {
-  flex: 0 0 320px;
-}
-
-section {
-  flex: 1;
-  min-width: 0;
+.back-btn:hover {
+  background: var(--code-bg);
 }
 
 .upload-list {
@@ -97,12 +103,13 @@ section {
 }
 
 .upload-list li > button:first-child {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: baseline;
   flex: 1;
   min-width: 0;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg);
@@ -115,11 +122,6 @@ section {
 
 .upload-list button:hover {
   background: var(--code-bg);
-}
-
-.upload-list li > button:first-child.active {
-  background: var(--active-bg);
-  border-color: var(--accent);
 }
 
 .delete-btn {
@@ -141,16 +143,44 @@ section {
   border-color: #ef4444;
 }
 
-.index {
-  color: var(--accent);
+.field-label {
+  color: #94a3b8;
+  font-family: var(--sans);
   font-weight: 600;
-  flex-shrink: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Shared key/value field appearance (list and individual pages). */
+.title {
+  font-weight: 600;
+}
+
+.entry-id {
+  color: #64748b;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* Plain text, deliberately NOT styled as a clickable link. */
+.url {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
 }
 
 .timestamp {
   color: #64748b;
-  font-family: var(--mono);
   font-size: 12px;
+}
+
+/* In the list, values are truncated to a single line. */
+.upload-list .title,
+.upload-list .entry-id,
+.upload-list .url,
+.upload-list .timestamp {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -160,12 +190,16 @@ section {
   word-break: break-word;
 }
 
-.entry-meta {
-  font-size: 13px;
-  color: #64748b;
+/* Same two-column key/value layout and styling as the list entries. */
+.entry-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: baseline;
   margin-bottom: 16px;
-  padding: 12px;
-  background: var(--code-bg);
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
