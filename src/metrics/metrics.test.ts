@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { questionMeta, questionScore, hasMetricVersion } from "./index";
+import { questionMeta, questionScore, maxScore, hasMetricVersion } from "./index";
 
 describe("metric question lookup (AIRBDS 0.3)", () => {
   it("returns the fixed theme, grade and text for known questions", () => {
@@ -38,6 +38,14 @@ describe("metric question lookup (AIRBDS 0.3)", () => {
     expect(questionScore("0.3", "ACM-999", "Yes")).toBeNull();
     expect(questionScore("0.3", "ACM-1", "Maybe")).toBeNull();
     expect(questionScore("0.3", "ACM-1", null)).toBeNull();
+  });
+
+  it("computes the max score as the total of all questions answered Yes", () => {
+    // AIRBDS 0.3: 9 Critical (80), 10 Important (5), 9 Optional (2)
+    // = 720 + 50 + 18 = 788.
+    expect(maxScore("0.3")).toBe(788);
+    expect(maxScore("0.99")).toBeNull();
+    expect(maxScore(null)).toBeNull();
   });
 
   it("reports which metric versions are available", () => {

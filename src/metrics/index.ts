@@ -50,6 +50,22 @@ export function questionScore(
   return null;
 }
 
+/**
+ * The maximum achievable score for a metric version: the sum of every
+ * question's full points, i.e. the total if every answer were "Yes". Returns
+ * null when the version is unknown.
+ */
+export function maxScore(version: string | null | undefined): number | null {
+  if (!version) return null;
+  const def = REGISTRY[version];
+  if (!def) return null;
+  let total = 0;
+  for (const q of Object.values(def.questions)) {
+    total += def.gradePoints[q.grade] ?? 0;
+  }
+  return total;
+}
+
 /** Whether question definitions are available for the given metric version. */
 export function hasMetricVersion(version: string | null | undefined): boolean {
   return !!version && version in REGISTRY;

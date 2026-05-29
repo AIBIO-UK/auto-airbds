@@ -123,14 +123,16 @@ describe("App routing", () => {
               theme: "BOGUS-THEME-4",
               question_text: "BOGUS-QUESTION-4",
               grade: "BOGUS-GRADE-4",
-              answer: "No",
+              answer: "Yes",
               score: 888,
-              justification: "No licence is stated.",
+              justification: "A clear licence is stated.",
             },
           ],
+          // Totals here are deliberately wrong: they should be ignored and
+          // recomputed from the metric definitions.
           scoring_summary: {
-            weighted_score: 774,
-            max_possible: 788,
+            weighted_score: 5678,
+            max_possible: 1234,
             grade: "Silver",
             grade_rationale: "All Critical questions pass.",
           },
@@ -145,9 +147,13 @@ describe("App routing", () => {
     window.location.hash = "#/entry/xyz";
     render(<App />);
 
-    // Summary box.
-    await screen.findByText("774");
+    // Summary box: score is computed from the metric, not the payload.
+    // Actual = ACM-1 (Important, Yes = 5) + ACM-4 (Critical, Yes = 80) = 85;
+    // max = total of all AIRBDS 0.3 questions if all "Yes" = 788.
+    await screen.findByText("85");
     expect(screen.getByText("788")).toBeInTheDocument();
+    expect(screen.queryByText("5678")).not.toBeInTheDocument(); // payload total ignored
+    expect(screen.queryByText("1234")).not.toBeInTheDocument(); // payload max ignored
     expect(screen.getByText("Silver")).toBeInTheDocument();
     expect(screen.getByText(/All Critical questions pass/)).toBeInTheDocument();
     expect(screen.getByText(/The dataset is highly AI-ready/)).toBeInTheDocument();
@@ -171,10 +177,11 @@ describe("App routing", () => {
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-QUESTION-1")).not.toBeInTheDocument();
 
-    // Score is derived from grade + answer, not the payload: ACM-1 (Important,
-    // Yes) = 5, ACM-4 (Critical, No) = 0. The payload's bogus scores are ignored.
+    // Per-question score is derived from grade + answer, not the payload:
+    // ACM-1 (Important, Yes) = 5, ACM-4 (Critical, Yes) = 80. Bogus payload
+    // scores are ignored.
     expect(screen.getByText("5")).toBeInTheDocument();
-    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.getByText("80")).toBeInTheDocument();
     expect(screen.queryByText("999")).not.toBeInTheDocument();
     expect(screen.queryByText("888")).not.toBeInTheDocument();
 

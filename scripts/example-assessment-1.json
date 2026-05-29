@@ -156,13 +156,6 @@
       }
     ],
     "scoring_summary": {
-      "weighted_score": 774,
-      "max_possible": 788,
-      "breakdown": {
-        "critical": { "answered_yes": 9, "total": 9, "fraction": 1.0, "points": 720, "max_points": 720 },
-        "important": { "answered_yes": 8, "total": 10, "fraction": 0.8, "points": 40, "max_points": 50 },
-        "optional": { "answered_yes": 7, "total": 9, "fraction": 0.778, "points": 14, "max_points": 18 }
-      },
       "grade": "Silver",
       "grade_rationale": "All Critical questions pass (1.0) and Important questions exceed the 0.5 threshold (0.8), meeting Silver. Gold is not awarded because Important is below 1.0 (ACM-11 bias and ACM-19 completeness are 'No')."
     },

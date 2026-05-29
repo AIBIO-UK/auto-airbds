@@ -1,5 +1,5 @@
 import { assessmentDetails } from "../types";
-import { questionMeta, questionScore } from "../metrics";
+import { maxScore, questionMeta, questionScore } from "../metrics";
 
 interface Props {
   data: unknown;
@@ -20,15 +20,30 @@ export function AssessmentReport({ data, metricVersion }: Props) {
 
   if (results.length === 0) return null;
 
-  const { weightedScore, maxPossible, grade, gradeRationale } = summary;
+  const { grade, gradeRationale } = summary;
+
+  // Scores are computed from the metric definition, not the uploaded payload:
+  // the maximum is the total if every answer were "Yes", and the actual score
+  // is the sum of points for the "Yes" answers. Fall back to the payload's own
+  // totals only when the metric version is unknown.
+  const maxFromMetric = maxScore(metricVersion);
+  const totalScore =
+    maxFromMetric !== null
+      ? results.reduce(
+          (sum, r) =>
+            sum + (questionScore(metricVersion, r.questionId, r.answer) ?? 0),
+          0
+        )
+      : summary.weightedScore;
+  const maxPossible = maxFromMetric ?? summary.maxPossible;
 
   return (
     <div className="assessment-report">
       <div className="summary-box">
         <div className="summary-head">
-          {weightedScore !== null && maxPossible !== null && (
+          {totalScore !== null && maxPossible !== null && (
             <span className="summary-score">
-              <span className="summary-score-value">{weightedScore}</span>
+              <span className="summary-score-value">{totalScore}</span>
               <span className="summary-score-sep"> / </span>
               <span className="summary-score-max">{maxPossible}</span>
             </span>
