@@ -155,10 +155,6 @@
         "justification": "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable."
       }
     ],
-    "scoring_summary": {
-      "grade": "Silver",
-      "grade_rationale": "All Critical questions pass (1.0) and Important questions exceed the 0.5 threshold (0.8), meeting Silver. Gold is not awarded because Important is below 1.0 (ACM-11 bias and ACM-19 completeness are 'No')."
-    },
     "summary_justification": "The dataset is highly AI-ready: it carries a persistent DOI, machine-readable Darwin Core/EML metadata, an AI/ML-permissive CC0 licence, documented provenance, and consistent open formats. It falls short of Gold because bias is undocumented (ACM-11) and some records are incomplete (ACM-19); addressing those two Important items would raise it to Gold."
   }
 }

@@ -13,7 +13,9 @@ For a given AIRBDS metric version, each question's **theme**, **grade**, and **t
 
 The overall score shown in the summary is computed the same way and **not** taken from the uploaded `scoring_summary`: the actual score is the sum of points for the questions answered `Yes`, and the maximum is the total if every question were `Yes`.
 
-[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` (theme/grade/text), `questionScore(version, questionId, answer)`, and `maxScore(version)`; the assessment view uses them to display each question and the overall total. Definitions are validated at load, so a malformed file fails loudly. To support a new version, add `airbds-<version>.yaml` and register it in `index.ts`.
+The **grade** (e.g. Gold/Silver/Bronze/Caution) is also computed, not trusted from the payload. Each YAML file has a `grading` section (highest grade first) listing, per grade, a `min_proportion_yes` for each grade category and a `min_score`. A dataset earns the highest grade for which the proportion of `Yes` answers in every category is at least its minimum (compared with `>=`) and the total score is at least `min_score`. Editing the `grading` section re-grades without any code change.
+
+[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` (scope/theme/grade/text), `questionScore(version, questionId, answer)`, `questionMaxScore(version, questionId)`, `maxScore(version)`, and `computeGrade(version, answers)`; the assessment view uses them to display each question, the overall total, and the grade. Definitions are validated at load, so a malformed file fails loudly. To support a new version, add `airbds-<version>.yaml` and register it in `index.ts`.
 
 ## Configuration
 

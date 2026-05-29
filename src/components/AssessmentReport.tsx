@@ -1,5 +1,6 @@
 import { assessmentDetails } from "../types";
 import {
+  computeGrade,
   maxScore,
   questionMaxScore,
   questionMeta,
@@ -25,7 +26,14 @@ export function AssessmentReport({ data, metricVersion }: Props) {
 
   if (results.length === 0) return null;
 
-  const { grade, gradeRationale } = summary;
+  // Grade is computed from the metric's thresholds, not trusted from the
+  // payload; fall back to the payload's grade only when the version is unknown.
+  const computed = computeGrade(
+    metricVersion,
+    results.map((r) => ({ questionId: r.questionId, answer: r.answer }))
+  );
+  const grade = computed?.name ?? summary.grade;
+  const gradeRationale = computed?.description ?? summary.gradeRationale;
 
   // Scores are computed from the metric definition, not the uploaded payload:
   // the maximum is the total if every answer were "Yes", and the actual score

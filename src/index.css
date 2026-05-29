@@ -275,6 +275,10 @@ h1 {
   background: #fde7d3;
   color: #9a3412;
 }
+.summary-grade.grade-caution {
+  background: #fee2e2;
+  color: #991b1b;
+}
 
 .summary-field {
   font-size: 13px;

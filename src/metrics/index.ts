@@ -10,10 +10,32 @@ export interface QuestionMeta {
 
 export type QuestionMap = Record<string, QuestionMeta>;
 
+interface GradeThreshold {
+  name: string;
+  description: string;
+  /** Minimum proportion of "Yes" answers required per grade category. */
+  minProportionYes: Record<string, number>;
+  /** Minimum total score required. */
+  minScore: number;
+}
+
 interface MetricDefinition {
   questions: QuestionMap;
   /** Full points awarded for a "Yes" answer, keyed by grade. */
   gradePoints: Record<string, number>;
+  /** Grading thresholds, ordered highest grade first. */
+  grading: GradeThreshold[];
+}
+
+export interface GradeResult {
+  name: string;
+  description: string;
+}
+
+/** A single question's answer, as needed to compute a grade. */
+export interface AnswerInput {
+  questionId: string | null;
+  answer: string | null;
 }
 
 // Registry of known AIRBDS metric versions → definitions, keyed by the version
@@ -83,6 +105,55 @@ export function questionMaxScore(
   return def.gradePoints[meta.grade] ?? null;
 }
 
+/**
+ * Determine the grade for a set of answers using the metric version's grading
+ * thresholds: the dataset earns the highest grade for which the proportion of
+ * "Yes" answers in every grade category is at least the required minimum (>=)
+ * and the total score is at least the required minimum. Proportions use the
+ * metric's full question counts as denominators, so a missing answer counts
+ * against the proportion. Returns null when the version or grading is unknown.
+ */
+export function computeGrade(
+  version: string | null | undefined,
+  answers: AnswerInput[]
+): GradeResult | null {
+  if (!version) return null;
+  const def = REGISTRY[version];
+  if (!def || def.grading.length === 0) return null;
+
+  const answerById = new Map<string, string | null>();
+  for (const a of answers) {
+    if (a.questionId) answerById.set(a.questionId, a.answer);
+  }
+
+  // Count questions and "Yes" answers per grade category, and total the score.
+  const totalByGrade: Record<string, number> = {};
+  const yesByGrade: Record<string, number> = {};
+  let score = 0;
+  for (const [id, q] of Object.entries(def.questions)) {
+    totalByGrade[q.grade] = (totalByGrade[q.grade] ?? 0) + 1;
+    if (answerById.get(id) === "Yes") {
+      yesByGrade[q.grade] = (yesByGrade[q.grade] ?? 0) + 1;
+      score += def.gradePoints[q.grade] ?? 0;
+    }
+  }
+  const proportion = (grade: string): number => {
+    const total = totalByGrade[grade] ?? 0;
+    // A category with no questions imposes no constraint.
+    return total === 0 ? 1 : (yesByGrade[grade] ?? 0) / total;
+  };
+
+  for (const grade of def.grading) {
+    const proportionsMet = Object.entries(grade.minProportionYes).every(
+      ([category, min]) => proportion(category) >= min
+    );
+    if (proportionsMet && score >= grade.minScore) {
+      return { name: grade.name, description: grade.description };
+    }
+  }
+  return null;
+}
+
 /** Whether question definitions are available for the given metric version. */
 export function hasMetricVersion(version: string | null | undefined): boolean {
   return !!version && version in REGISTRY;
@@ -139,7 +210,42 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
     };
   }
 
-  return { questions, gradePoints };
+  const grading: GradeThreshold[] = [];
+  const gradingRaw = Array.isArray(raw.grading) ? raw.grading : [];
+  for (const entry of gradingRaw) {
+    if (!isRecord(entry) || typeof entry.name !== "string") {
+      throw new Error(
+        `Invalid metric file ${source}: each grading entry needs a string "name"`
+      );
+    }
+    if (typeof entry.min_score !== "number" || !Number.isFinite(entry.min_score)) {
+      throw new Error(
+        `Invalid metric file ${source}: grade "${entry.name}" needs a numeric "min_score"`
+      );
+    }
+    if (!isRecord(entry.min_proportion_yes)) {
+      throw new Error(
+        `Invalid metric file ${source}: grade "${entry.name}" needs a "min_proportion_yes" map`
+      );
+    }
+    const minProportionYes: Record<string, number> = {};
+    for (const [category, value] of Object.entries(entry.min_proportion_yes)) {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        throw new Error(
+          `Invalid metric file ${source}: grade "${entry.name}" proportion for "${category}" must be numeric`
+        );
+      }
+      minProportionYes[category] = value;
+    }
+    grading.push({
+      name: entry.name,
+      description: typeof entry.description === "string" ? entry.description : "",
+      minProportionYes,
+      minScore: entry.min_score,
+    });
+  }
+
+  return { questions, gradePoints, grading };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

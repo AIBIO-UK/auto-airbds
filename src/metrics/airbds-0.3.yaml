@@ -22,6 +22,30 @@ grade_points:
   Important: 5
   Optional: 2
 
+# Grading thresholds (from the spreadsheet's "Scoring thresholds" section),
+# highest grade first. A dataset earns the highest grade for which every
+# requirement holds: the proportion of "Yes" answers within each grade category
+# must be at least min_proportion_yes (compared with >=), and the total score
+# must be at least min_score. The final entry should be the floor (all-zero
+# requirements). Editing these values re-grades without any code change.
+grading:
+  - name: Gold
+    description: "Passes all Critical and Important questions, plus at least 50% Optional"
+    min_proportion_yes: { Critical: 1.0, Important: 1.0, Optional: 0.5 }
+    min_score: 708
+  - name: Silver
+    description: "Passes all Critical plus at least 50% of Important questions (or equivalent)"
+    min_proportion_yes: { Critical: 1.0, Important: 0.5, Optional: 0.0 }
+    min_score: 670
+  - name: Bronze
+    description: "Passes most Critical questions"
+    min_proportion_yes: { Critical: 0.875, Important: 0.0, Optional: 0.0 }
+    min_score: 560
+  - name: Caution
+    description: "May have serious issues"
+    min_proportion_yes: { Critical: 0.0, Important: 0.0, Optional: 0.0 }
+    min_score: 0
+
 questions:
   ACM-1:
     scope: Infrastructure

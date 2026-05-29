@@ -2,6 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
+import {
+  computeGrade,
+  maxScore,
+  questionMaxScore,
+  questionMeta,
+  questionScore,
+} from "./metrics";
 
 const ENTRIES = [
   {
@@ -128,13 +135,13 @@ describe("App routing", () => {
               justification: "A clear licence is stated.",
             },
           ],
-          // Totals here are deliberately wrong: they should be ignored and
-          // recomputed from the metric definitions.
+          // Totals/grade here are deliberately bogus: they should be ignored
+          // and recomputed from the metric definitions.
           scoring_summary: {
             weighted_score: 5678,
             max_possible: 1234,
-            grade: "Silver",
-            grade_rationale: "All Critical questions pass.",
+            grade: "BOGUS-GRADE",
+            grade_rationale: "BOGUS-RATIONALE",
           },
           summary_justification: "The dataset is highly AI-ready.",
         },
@@ -144,46 +151,57 @@ describe("App routing", () => {
       "fetch",
       vi.fn(async () => ({ ok: true, json: async () => [entry] })) as unknown as typeof fetch
     );
+
+    // Expected values come from the metric module, so the test tracks the YAML.
+    const VERSION = "0.3";
+    const answers = entry.data.assessment.results.map((r) => ({
+      questionId: r.question_id,
+      answer: r.answer,
+    }));
+    const expectedTotal = answers.reduce(
+      (sum, a) => sum + (questionScore(VERSION, a.questionId, a.answer) ?? 0),
+      0
+    );
+    const expectedMax = maxScore(VERSION)!;
+    const expectedGrade = computeGrade(VERSION, answers)!;
+    const meta1 = questionMeta(VERSION, "ACM-1")!;
+    const meta4 = questionMeta(VERSION, "ACM-4")!;
+    const score1 = `${questionScore(VERSION, "ACM-1", "Yes")}/${questionMaxScore(VERSION, "ACM-1")}`;
+    const score4 = `${questionScore(VERSION, "ACM-4", "Yes")}/${questionMaxScore(VERSION, "ACM-4")}`;
+
     window.location.hash = "#/entry/xyz";
     render(<App />);
 
-    // Summary box: score is computed from the metric, not the payload.
-    // Actual = ACM-1 (Important, Yes = 5) + ACM-4 (Critical, Yes = 80) = 85;
-    // max = total of all AIRBDS 0.3 questions if all "Yes" = 716.
-    await screen.findByText("85");
-    expect(screen.getByText("716")).toBeInTheDocument();
-    expect(screen.queryByText("5678")).not.toBeInTheDocument(); // payload total ignored
-    expect(screen.queryByText("1234")).not.toBeInTheDocument(); // payload max ignored
-    expect(screen.getByText("Silver")).toBeInTheDocument();
-    expect(screen.getByText(/All Critical questions pass/)).toBeInTheDocument();
+    // Summary box: score, max and grade are computed from the metric, not the
+    // payload. The bogus payload totals/grade must not appear.
+    await screen.findByText(String(expectedTotal));
+    expect(screen.getByText(String(expectedMax))).toBeInTheDocument();
+    expect(screen.queryByText("5678")).not.toBeInTheDocument();
+    expect(screen.queryByText("1234")).not.toBeInTheDocument();
+    expect(screen.getByText(expectedGrade.name)).toBeInTheDocument();
+    expect(screen.getByText(expectedGrade.description)).toBeInTheDocument();
+    expect(screen.queryByText("BOGUS-GRADE")).not.toBeInTheDocument();
+    expect(screen.queryByText("BOGUS-RATIONALE")).not.toBeInTheDocument();
     expect(screen.getByText(/The dataset is highly AI-ready/)).toBeInTheDocument();
 
     // Results rows.
     expect(screen.getByText("ACM-1")).toBeInTheDocument();
     expect(screen.getByText("ACM-4")).toBeInTheDocument();
 
-    // Theme, grade and question text come from the AIRBDS 0.3 definitions,
-    // not the payload.
-    expect(screen.getByText("Access")).toBeInTheDocument(); // ACM-1 theme
-    expect(screen.getByText("Licence")).toBeInTheDocument(); // ACM-4 theme
-    // Scope comes from the metric too (ACM-1 and ACM-4 are both Infrastructure).
-    expect(screen.getAllByText("Infrastructure")).toHaveLength(2);
-    expect(screen.getByText("Critical")).toBeInTheDocument(); // ACM-4 grade
-    expect(
-      screen.getByText("Can the dataset be accessed in its entirety?")
-    ).toBeInTheDocument(); // ACM-1 text
-    expect(
-      screen.getByText("Is the dataset released with a clear licence or terms of use?")
-    ).toBeInTheDocument(); // ACM-4 text
+    // Scope, theme and question text come from the metric, not the payload.
+    expect(screen.getAllByText(meta1.scope).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta1.theme).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta4.theme).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta1.text).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta4.text).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-QUESTION-1")).not.toBeInTheDocument();
 
     // Per-question score is derived from grade + answer and shown as
-    // "<actual>/<full>": ACM-1 (Important, Yes) = 5/5, ACM-4 (Critical,
-    // Yes) = 80/80. Bogus payload scores are ignored.
-    expect(screen.getByText("5/5")).toBeInTheDocument();
-    expect(screen.getByText("80/80")).toBeInTheDocument();
+    // "<actual>/<full>". Bogus payload scores are ignored.
+    expect(screen.getByText(score1)).toBeInTheDocument();
+    expect(screen.getByText(score4)).toBeInTheDocument();
     expect(screen.queryByText("999")).not.toBeInTheDocument();
     expect(screen.queryByText("888")).not.toBeInTheDocument();
 
