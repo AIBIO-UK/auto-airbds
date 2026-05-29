@@ -280,10 +280,14 @@ h1 {
   color: #991b1b;
 }
 
-.summary-field {
+/* Key/value rows aligned like the other boxes (entry-fields, result-card). */
+.summary-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: baseline;
   font-size: 13px;
   line-height: 1.5;
-  margin: 6px 0 0;
 }
 
 /* Per-question results, each laid out like the metadata summary box:

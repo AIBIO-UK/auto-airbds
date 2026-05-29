@@ -67,16 +67,21 @@ export function AssessmentReport({ data, metricVersion }: Props) {
             </span>
           )}
         </div>
-        {gradeRationale && (
-          <p className="summary-field">
-            <span className="field-label">Grade rationale:</span>{" "}
-            {gradeRationale}
-          </p>
-        )}
-        {summaryJustification && (
-          <p className="summary-field">
-            <span className="field-label">Summary:</span> {summaryJustification}
-          </p>
+        {(gradeRationale || summaryJustification) && (
+          <div className="summary-fields">
+            {gradeRationale && (
+              <>
+                <span className="field-label">Grade rationale:</span>
+                <span>{gradeRationale}</span>
+              </>
+            )}
+            {summaryJustification && (
+              <>
+                <span className="field-label">Summary:</span>
+                <span>{summaryJustification}</span>
+              </>
+            )}
+          </div>
         )}
       </div>
 
