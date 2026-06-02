@@ -95,7 +95,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
           const scope = meta?.scope ?? null;
           const theme = meta?.theme ?? r.theme;
           const grade = meta?.grade ?? r.grade;
-          const questionText = meta?.text ?? r.questionText;
+          const questionText = meta?.question ?? r.questionText;
           // Show "<actual>/<full>" when the metric defines the question;
           // otherwise fall back to the payload's own score.
           const fullScore = questionMaxScore(metricVersion, r.questionId);

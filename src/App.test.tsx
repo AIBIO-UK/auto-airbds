@@ -192,8 +192,8 @@ describe("App routing", () => {
     expect(screen.getAllByText(meta1.scope).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta1.theme).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta4.theme).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(meta1.text).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(meta4.text).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta1.question).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta4.question).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
     expect(screen.queryByText("BOGUS-QUESTION-1")).not.toBeInTheDocument();

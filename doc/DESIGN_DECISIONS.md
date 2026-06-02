@@ -4,7 +4,7 @@ Technical/implementation decisions and the reasoning behind them. All these are 
 
 ## Metrics file format: YAML
 
-For a given AIRBDS metric version, each question's **theme** and **grade** are fixed (e.g. `ACM-1` is always Access/Important, `ACM-4` is always License/Critical). These definitions live in `src/metrics/`, one file per version named by version (`airbds-<version>.yaml`), and are the source of truth — the theme/grade in uploaded assessments are ignored in favour of them.
+For a given AIRBDS metric version, each question's **theme** and **grade** are fixed (e.g. `ACM-1` is always Access/Important, `ACM-4` is always License/Critical). These definitions live in `src/metrics/`, one file per version named by version (`airbds_metric_v<version>.yaml`), and are the source of truth — the theme/grade in uploaded assessments are ignored in favour of them.
 
 **Decision:** store these per-version definition files as **YAML**.
 

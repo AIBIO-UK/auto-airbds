@@ -1,11 +1,11 @@
-import airbds03 from "./airbds-0.3.yaml";
+import airbds03 from "./airbds_metric_v0.3.yaml";
 
 export interface QuestionMeta {
   /** Broad category, broader than theme (e.g. Infrastructure, Metadata). */
   scope: string;
   theme: string;
   grade: string;
-  text: string;
+  question: string;
 }
 
 export type QuestionMap = Record<string, QuestionMeta>;
@@ -40,9 +40,9 @@ export interface AnswerInput {
 
 // Registry of known AIRBDS metric versions → definitions, keyed by the version
 // string found in an assessment's `metric.version`. Add a new
-// `airbds-<version>.yaml`, import it here, and register it to support a version.
+// `airbds_metric_v<version>.yaml`, import it here, and register it to support a version.
 const REGISTRY: Record<string, MetricDefinition> = {
-  "0.3": parseMetric(airbds03, "airbds-0.3.yaml"),
+  "0.3": parseMetric(airbds03, "airbds_metric_v0.3.yaml"),
 };
 
 /** Look up the fixed theme/grade for a question in a given metric version. */
@@ -191,10 +191,10 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
       typeof value.scope !== "string" ||
       typeof value.theme !== "string" ||
       typeof value.grade !== "string" ||
-      typeof value.text !== "string"
+      typeof value.question !== "string"
     ) {
       throw new Error(
-        `Invalid metric file ${source}: question "${id}" needs string scope, theme, grade and text`
+        `Invalid metric file ${source}: question "${id}" needs string scope, theme, grade and question`
       );
     }
     if (!(value.grade in gradePoints)) {
@@ -206,7 +206,7 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
       scope: value.scope,
       theme: value.theme,
       grade: value.grade,
-      text: value.text,
+      question: value.question,
     };
   }
 

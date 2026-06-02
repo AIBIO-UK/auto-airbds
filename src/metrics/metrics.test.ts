@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import metricYaml from "./airbds-0.3.yaml";
+import metricYaml from "./airbds_metric_v0.3.yaml";
 import {
   questionMeta,
   questionScore,
@@ -17,7 +17,7 @@ interface RawQuestion {
   scope: string;
   theme: string;
   grade: string;
-  text: string;
+  question: string;
 }
 interface RawGrade {
   name: string;
@@ -55,13 +55,13 @@ function answersWithYes(yesIds: string[]) {
 }
 
 describe("metric question lookup", () => {
-  it("exposes scope/theme/grade/text matching the YAML for every question", () => {
+  it("exposes scope/theme/grade/question matching the YAML for every question", () => {
     for (const [id, q] of Object.entries(QUESTIONS)) {
       expect(questionMeta(VERSION, id)).toEqual({
         scope: q.scope,
         theme: q.theme,
         grade: q.grade,
-        text: q.text,
+        question: q.question,
       });
     }
   });
