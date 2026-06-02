@@ -5,6 +5,15 @@
 # License: CC-BY-4.0
 # =============================================================================
 #
+# *** GENERATED FILE — DO NOT EDIT BY HAND. ***
+#
+# This file is generated from the AIRBDS scoring spreadsheet by
+#     scripts/build_metric_yaml_from_spreadsheet_v0.3.py
+# Any manual edit will be lost the next time the file is regenerated. To change
+# this file's contents — or the way it is generated — edit that script (and/or
+# the source spreadsheet) and re-run it. Never edit this file directly.
+# =============================================================================
+#
 # Question definitions for a given metric version. For a version the scope,
 # theme and grade of each question are fixed, so they are defined here as the
 # source of truth rather than trusted from uploaded assessments.
