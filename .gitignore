@@ -13,6 +13,11 @@ dist
 dist-ssr
 *.local
 
+# Local ad-hoc test assessments dropped in scripts/ for manual uploads.
+# The committed example fixture is kept.
+scripts/*.yaml
+!scripts/example-assessment-1.yaml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
