@@ -32,7 +32,7 @@ The fields auto-airbds reads are:
 
 Other template fields (`reviewer.initials`/`orcid`/`affiliation`, `dataset.hosting_resource`/`accession`, `answers.*.not_applicable`, `result.*`) are accepted but ignored — the score and grade are recomputed from the metric definition, not trusted from the upload.
 
-Uploads are **validated server-side** and rejected with `400` (or `413` if too large) unless they are complete: a known `schema_version`, non-empty `reviewer.name`/`review_date` and `dataset.name`/`url`, and a `"Yes"`/`"No"` answer for **every** question in that metric version. The per-version question list the validator checks against lives in [`functions/metrics.ts`](./functions/metrics.ts) (the Functions bundle has no YAML loader, so it can't read the metric YAML directly); a unit test keeps it in sync with `src/metrics/`.
+Uploads are **validated server-side** and rejected with `400` (or `413` if larger than 256 KB) unless they are complete: a known `schema_version`, non-empty `reviewer.name`/`review_date` and `dataset.name`/`url`, and a `"Yes"`/`"No"` answer for **every** question in that metric version. The per-version question list the validator checks against lives in [`functions/metrics.ts`](./functions/metrics.ts) (the Functions bundle has no YAML loader, so it can't read the metric YAML directly); a unit test keeps it in sync with `src/metrics/`.
 
 ### Public endpoint & abuse limits
 
@@ -40,6 +40,7 @@ Uploads are **validated server-side** and rejected with `400` (or `413` if too l
 
 - **Per-IP rate limit** (default 20 uploads/hour), counted in D1 ([`functions/ratelimit.ts`](./functions/ratelimit.ts)). The client IP (`CF-Connecting-IP`) is hashed with a salted SHA-256 before storage — **no raw IP is kept** — and rows are pruned to the active window. Over-limit requests get `429`. (`CF-Connecting-IP` is absent under local `wrangler pages dev`, so all local uploads share one bucket.)
 - **Global cap** of 50 stored uploads (`MAX_UPLOADS`), returning `429` once full.
+- **Max upload size** of 256 KB (`MAX_UPLOAD_BYTES`), returning `413` — checked early via `Content-Length`, again after reading the body, and on the client before posting.
 
 These are interim measures. A moderation/holding queue and authenticated deletes are planned — see [`doc/PLAN.md`](./doc/PLAN.md).
 

@@ -57,4 +57,19 @@ describe("UploadButton", () => {
     await screen.findByText(/Upload failed: Missing "reviewer\.name"/);
     expect(onUploaded).not.toHaveBeenCalled();
   });
+
+  it("rejects an oversized file client-side without calling the server", async () => {
+    const onUploaded = vi.fn();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock as unknown as typeof fetch);
+
+    const { container } = render(<UploadButton onUploaded={onUploaded} />);
+    const big = "a".repeat(256 * 1024 + 1);
+    const file = new File([big], "huge.yaml", { type: "application/yaml" });
+    await userEvent.upload(fileInput(container), file);
+
+    await screen.findByText(/huge\.yaml is too large/);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(onUploaded).not.toHaveBeenCalled();
+  });
 });

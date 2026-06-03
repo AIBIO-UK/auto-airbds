@@ -10,6 +10,11 @@ interface Status {
   msg: string;
 }
 
+// Mirrors the server's limit (functions/validation.ts MAX_UPLOAD_BYTES). The
+// server is authoritative; this just gives immediate feedback and avoids a
+// wasted upload.
+const MAX_UPLOAD_BYTES = 256 * 1024;
+
 /**
  * A file picker that uploads a YAML assessment to /api/upload. The endpoint is
  * public, so no API key is sent; the server's validation/rate-limit message is
@@ -20,6 +25,13 @@ export function UploadButton({ onUploaded }: Props) {
   const busy = status.kind === "busy";
 
   async function handleFile(file: File) {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setStatus({
+        kind: "error",
+        msg: `${file.name} is too large (max ${MAX_UPLOAD_BYTES / 1024} KB).`,
+      });
+      return;
+    }
     setStatus({ kind: "busy", msg: `Uploading ${file.name}…` });
     try {
       const text = await file.text();

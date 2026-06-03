@@ -1,5 +1,5 @@
 import type { UploadEntry, Env } from "../types";
-import { parseAndValidate } from "../validation";
+import { parseAndValidate, MAX_UPLOAD_BYTES } from "../validation";
 import { allowUpload, hashIp } from "../ratelimit";
 
 const MAX_UPLOADS = 50;
@@ -7,6 +7,16 @@ const MAX_UPLOADS = 50;
 export const onRequest: PagesFunction<Env> = async (context) => {
   if (context.request.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
+  }
+
+  // Reject oversized uploads up front (before buffering the body or touching
+  // D1), when the client declares the size. The body length is also checked
+  // after reading, in case Content-Length is missing or wrong.
+  const declaredSize = Number(context.request.headers.get("Content-Length"));
+  if (Number.isFinite(declaredSize) && declaredSize > MAX_UPLOAD_BYTES) {
+    return new Response(`Upload too large (max ${MAX_UPLOAD_BYTES / 1024} KB)`, {
+      status: 413,
+    });
   }
 
   // The endpoint is public (no API key), so a per-IP rate limit is the abuse

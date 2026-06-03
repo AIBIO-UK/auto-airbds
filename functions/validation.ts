@@ -20,8 +20,11 @@ import { questionIdsForVersion } from "./metrics";
 // logLevel "silent" keeps a crafted upload (e.g. unknown tags) from flooding the
 // Worker logs with parser warnings.
 
-// Cap the body before parsing so an oversized upload can't tie up the worker.
-const MAX_BODY_CHARS = 256 * 1024;
+// Maximum upload size. The upload Function checks this early via Content-Length;
+// here we check it again against the read body (in case Content-Length is absent
+// or wrong) so an oversized upload can't tie up the worker. Exported so both
+// checks — and the client-side guard — share one value.
+export const MAX_UPLOAD_BYTES = 256 * 1024; // 256 KB
 // Bound YAML anchor/alias expansion to defuse "billion laughs" style payloads.
 const MAX_ALIAS_COUNT = 100;
 
@@ -36,8 +39,12 @@ export type ParseResult =
  * caller can reject the upload.
  */
 export function parseAndValidate(text: string): ParseResult {
-  if (text.length > MAX_BODY_CHARS) {
-    return { ok: false, status: 413, error: "Upload too large" };
+  if (text.length > MAX_UPLOAD_BYTES) {
+    return {
+      ok: false,
+      status: 413,
+      error: `Upload too large (max ${MAX_UPLOAD_BYTES / 1024} KB)`,
+    };
   }
 
   let data: unknown;
