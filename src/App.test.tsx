@@ -16,16 +16,14 @@ const ENTRIES = [
     timestamp: "2026-05-29T10:00:00Z",
     data: {
       score: 42,
-      assessment: {
-        metric: { name: "AIRBDS Metric", version: "0.3" },
-        dataset: {
-          title: "Mediterranean Marine Invertebrate Records",
-          source_url: "https://example-data-portal.org/datasets/med-marine-invert",
-        },
-        metadata: {
-          model: "claude-opus-4-7",
-          assessment_timestamp: "2026-05-29T10:00:00Z",
-        },
+      schema_version: "0.3",
+      reviewer: {
+        name: "claude-opus-4-7",
+        review_date: "2026-05-29T10:00:00Z",
+      },
+      dataset: {
+        name: "Mediterranean Marine Invertebrate Records",
+        url: "https://example-data-portal.org/datasets/med-marine-invert",
       },
     },
   },
@@ -49,12 +47,12 @@ describe("App routing", () => {
     window.location.hash = "";
   });
 
-  it("shows the assessment list on the main page, not the JSON", async () => {
+  it("shows the assessment list on the main page, not the raw payload", async () => {
     render(<App />);
 
     await screen.findByText("29 May 2026, 10:00 UTC");
-    expect(screen.getByText("JSON Uploads")).toBeInTheDocument();
-    // Each list item shows the dataset source URL, title, then timestamp.
+    expect(screen.getByText("Assessment Uploads")).toBeInTheDocument();
+    // Each list item shows the dataset URL, name, then timestamp.
     expect(
       screen.getByText("https://example-data-portal.org/datasets/med-marine-invert")
     ).toBeInTheDocument();
@@ -63,13 +61,13 @@ describe("App routing", () => {
     ).toBeInTheDocument();
     // The entry ID is shown in the list too.
     expect(screen.getByText("abc")).toBeInTheDocument();
-    // The performer (model) is shown in the list.
+    // The reviewer (here a model name) is shown in the list.
     expect(screen.getByText("claude-opus-4-7")).toBeInTheDocument();
-    // The raw JSON should not be rendered on the list page.
+    // The raw payload should not be rendered on the list page.
     expect(screen.queryByText(/"score": 42/)).not.toBeInTheDocument();
   });
 
-  it("navigates to a separate JSON page when an assessment is clicked", async () => {
+  it("navigates to a separate page when an assessment is clicked", async () => {
     render(<App />);
 
     const item = await screen.findByText("29 May 2026, 10:00 UTC");
@@ -95,7 +93,7 @@ describe("App routing", () => {
     expect(screen.getByText("0.3")).toBeInTheDocument();
   });
 
-  it("falls back to raw JSON when the payload has no results", async () => {
+  it("falls back to the raw payload when there are no answers", async () => {
     window.location.hash = "#/entry/abc";
     render(<App />);
 
@@ -109,41 +107,24 @@ describe("App routing", () => {
       id: "xyz",
       timestamp: "2026-05-29T10:00:00Z",
       data: {
-        assessment: {
-          metric: { version: "0.3" },
-          dataset: { title: "Some Dataset", source_url: "https://ex.org/d" },
-          metadata: { model: "claude-opus-4-7" },
-          // Theme, grade, question text and score below are deliberately
-          // wrong: they should be ignored in favour of the metric definitions.
-          results: [
-            {
-              question_id: "ACM-1",
-              theme: "BOGUS-THEME-1",
-              question_text: "BOGUS-QUESTION-1",
-              grade: "BOGUS-GRADE-1",
-              answer: "Yes",
-              score: 999,
-              justification: "The full set of records is retrievable.",
-            },
-            {
-              question_id: "ACM-4",
-              theme: "BOGUS-THEME-4",
-              question_text: "BOGUS-QUESTION-4",
-              grade: "BOGUS-GRADE-4",
-              answer: "Yes",
-              score: 888,
-              justification: "A clear licence is stated.",
-            },
-          ],
-          // Totals/grade here are deliberately bogus: they should be ignored
-          // and recomputed from the metric definitions.
-          scoring_summary: {
-            weighted_score: 5678,
-            max_possible: 1234,
-            grade: "BOGUS-GRADE",
-            grade_rationale: "BOGUS-RATIONALE",
+        schema_version: "0.3",
+        reviewer: {
+          name: "claude-opus-4-7",
+          review_date: "2026-05-29T10:00:00Z",
+        },
+        dataset: {
+          name: "Some Dataset",
+          url: "https://ex.org/d",
+          comments: "The dataset is highly AI-ready.",
+        },
+        // The answers map is keyed by question id; theme/grade/question text and
+        // score are not in the payload — they come from the metric definition.
+        answers: {
+          "ACM-1": {
+            answer: "Yes",
+            comments: "The full set of records is retrievable.",
           },
-          summary_justification: "The dataset is highly AI-ready.",
+          "ACM-4": { answer: "Yes", comments: "A clear licence is stated." },
         },
       },
     };
@@ -154,9 +135,9 @@ describe("App routing", () => {
 
     // Expected values come from the metric module, so the test tracks the YAML.
     const VERSION = "0.3";
-    const answers = entry.data.assessment.results.map((r) => ({
-      questionId: r.question_id,
-      answer: r.answer,
+    const answers = Object.entries(entry.data.answers).map(([id, a]) => ({
+      questionId: id,
+      answer: a.answer,
     }));
     const expectedTotal = answers.reduce(
       (sum, a) => sum + (questionScore(VERSION, a.questionId, a.answer) ?? 0),
@@ -172,40 +153,33 @@ describe("App routing", () => {
     window.location.hash = "#/entry/xyz";
     render(<App />);
 
-    // Summary box: score, max and grade are computed from the metric, not the
-    // payload. The bogus payload totals/grade must not appear.
+    // Summary box: score, max and grade are computed from the metric.
     await screen.findByText(String(expectedTotal));
     expect(screen.getByText(String(expectedMax))).toBeInTheDocument();
-    expect(screen.queryByText("5678")).not.toBeInTheDocument();
-    expect(screen.queryByText("1234")).not.toBeInTheDocument();
     expect(screen.getByText(expectedGrade.name)).toBeInTheDocument();
     expect(screen.getByText(expectedGrade.description)).toBeInTheDocument();
-    expect(screen.queryByText("BOGUS-GRADE")).not.toBeInTheDocument();
-    expect(screen.queryByText("BOGUS-RATIONALE")).not.toBeInTheDocument();
+    // The summary text comes from dataset.comments.
     expect(screen.getByText(/The dataset is highly AI-ready/)).toBeInTheDocument();
 
     // Results rows.
     expect(screen.getByText("ACM-1")).toBeInTheDocument();
     expect(screen.getByText("ACM-4")).toBeInTheDocument();
 
-    // Scope, theme and question text come from the metric, not the payload.
+    // Scope, theme and question text come from the metric.
     expect(screen.getAllByText(meta1.scope).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta1.theme).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta4.theme).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta1.question).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta4.question).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText("BOGUS-THEME-1")).not.toBeInTheDocument();
-    expect(screen.queryByText("BOGUS-GRADE-4")).not.toBeInTheDocument();
-    expect(screen.queryByText("BOGUS-QUESTION-1")).not.toBeInTheDocument();
 
     // Per-question score is derived from grade + answer and shown as
-    // "<actual>/<full>". Bogus payload scores are ignored.
+    // "<actual>/<full>".
     expect(screen.getByText(score1)).toBeInTheDocument();
     expect(screen.getByText(score4)).toBeInTheDocument();
-    expect(screen.queryByText("999")).not.toBeInTheDocument();
-    expect(screen.queryByText("888")).not.toBeInTheDocument();
 
-    // The raw JSON dump is no longer shown for a recognised assessment.
-    expect(screen.queryByText(/"weighted_score"/)).not.toBeInTheDocument();
+    // The per-question comments are shown as the justification.
+    expect(
+      screen.getByText("The full set of records is retrievable.")
+    ).toBeInTheDocument();
   });
 });

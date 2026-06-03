@@ -22,33 +22,32 @@ interface Props {
  * `metricVersion` (they are fixed per version), not from the uploaded payload.
  */
 export function AssessmentReport({ data, metricVersion }: Props) {
-  const { results, summary, summaryJustification } = assessmentDetails(data);
+  const { results, summary } = assessmentDetails(data);
 
   if (results.length === 0) return null;
 
   // Grade is computed from the metric's thresholds, not trusted from the
-  // payload; fall back to the payload's grade only when the version is unknown.
+  // payload (the payload does not carry a grade).
   const computed = computeGrade(
     metricVersion,
     results.map((r) => ({ questionId: r.questionId, answer: r.answer }))
   );
-  const grade = computed?.name ?? summary.grade;
-  const gradeRationale = computed?.description ?? summary.gradeRationale;
+  const grade = computed?.name ?? null;
+  const gradeRationale = computed?.description ?? null;
 
   // Scores are computed from the metric definition, not the uploaded payload:
   // the maximum is the total if every answer were "Yes", and the actual score
-  // is the sum of points for the "Yes" answers. Fall back to the payload's own
-  // totals only when the metric version is unknown.
-  const maxFromMetric = maxScore(metricVersion);
+  // is the sum of points for the "Yes" answers. Both are null (hidden) when the
+  // metric version is unknown.
+  const maxPossible = maxScore(metricVersion);
   const totalScore =
-    maxFromMetric !== null
+    maxPossible !== null
       ? results.reduce(
           (sum, r) =>
             sum + (questionScore(metricVersion, r.questionId, r.answer) ?? 0),
           0
         )
-      : summary.weightedScore;
-  const maxPossible = maxFromMetric ?? summary.maxPossible;
+      : null;
 
   return (
     <div className="assessment-report">
@@ -67,7 +66,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
             </span>
           )}
         </div>
-        {(gradeRationale || summaryJustification) && (
+        {(gradeRationale || summary) && (
           <div className="summary-fields">
             {gradeRationale && (
               <>
@@ -75,10 +74,10 @@ export function AssessmentReport({ data, metricVersion }: Props) {
                 <span>{gradeRationale}</span>
               </>
             )}
-            {summaryJustification && (
+            {summary && (
               <>
                 <span className="field-label">Summary:</span>
-                <span>{summaryJustification}</span>
+                <span>{summary}</span>
               </>
             )}
           </div>
@@ -87,23 +86,19 @@ export function AssessmentReport({ data, metricVersion }: Props) {
 
       <div className="results-list">
         {results.map((r, i) => {
-          // Theme, grade, question text, and score are fixed per metric
+          // Scope, theme, grade, question text, and score are fixed per metric
           // version (the score is derived from the grade and the Yes/No
-          // answer); fall back to the payload's own values only when the
-          // version is unknown.
+          // answer), so they come from the metric definition, not the payload.
           const meta = questionMeta(metricVersion, r.questionId);
           const scope = meta?.scope ?? null;
-          const theme = meta?.theme ?? r.theme;
-          const grade = meta?.grade ?? r.grade;
-          const questionText = meta?.question ?? r.questionText;
-          // Show "<actual>/<full>" when the metric defines the question;
-          // otherwise fall back to the payload's own score.
+          const theme = meta?.theme ?? null;
+          const grade = meta?.grade ?? null;
+          const questionText = meta?.question ?? null;
+          // Show "<actual>/<full>" when the metric defines the question.
           const fullScore = questionMaxScore(metricVersion, r.questionId);
           const actualScore = questionScore(metricVersion, r.questionId, r.answer);
           const scoreDisplay =
-            fullScore !== null
-              ? `${actualScore ?? "—"}/${fullScore}`
-              : (r.score ?? "—");
+            fullScore !== null ? `${actualScore ?? "—"}/${fullScore}` : "—";
           return (
             <div className="result-card" key={r.questionId ?? i}>
               <span className="field-label">ID:</span>
@@ -131,7 +126,7 @@ export function AssessmentReport({ data, metricVersion }: Props) {
               <span className="field-label">Score:</span>
               <span>{scoreDisplay}</span>
               <span className="field-label">Justification:</span>
-              <span>{r.justification ?? "—"}</span>
+              <span>{r.comments ?? "—"}</span>
             </div>
           );
         })}

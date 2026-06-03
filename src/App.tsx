@@ -60,9 +60,10 @@ function App() {
         </>
       ) : (
         <>
-          <h1>JSON Uploads</h1>
+          <h1>Assessment Uploads</h1>
           <p className="subtitle">
-            POST JSON to <code>/api/upload</code> to add entries.
+            POST a YAML (or JSON) assessment to <code>/api/upload</code> to add
+            entries.
           </p>
           <UploadList
             entries={entries}

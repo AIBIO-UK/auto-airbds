@@ -1,4 +1,5 @@
 import type { UploadEntry, Env } from "../types";
+import { parseAndValidate } from "../validation";
 
 const API_KEY = "auto-airbds-dev-key";
 const MAX_UPLOADS = 30;
@@ -19,17 +20,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return new Response("Upload limit reached", { status: 429 });
   }
 
-  let data: unknown;
+  // Assessments are uploaded as YAML (or JSON — YAML is a superset). Read the
+  // body as text and parse+validate it; reject anything that isn't a complete
+  // assessment against a known metric version.
+  let body: string;
   try {
-    data = await context.request.json();
+    body = await context.request.text();
   } catch {
-    return new Response("Invalid JSON body", { status: 400 });
+    return new Response("Could not read request body", { status: 400 });
+  }
+
+  const parsed = parseAndValidate(body);
+  if (!parsed.ok) {
+    return new Response(parsed.error, { status: parsed.status });
   }
 
   const entry: UploadEntry = {
     id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
-    data,
+    data: parsed.data,
   };
 
   await context.env.DB.prepare(

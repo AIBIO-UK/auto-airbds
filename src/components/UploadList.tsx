@@ -15,19 +15,19 @@ export function UploadList({ entries, onSelect, onDelete }: Props) {
   return (
     <ul className="upload-list">
       {entries.map((entry) => {
-        const { title, sourceUrl, assessedAt, model } = datasetInfo(entry.data);
+        const { name, url, reviewDate, reviewer } = datasetInfo(entry.data);
         return (
           <li key={entry.id}>
             <button onClick={() => onSelect(entry.id)}>
               <span className="field-label">Title:</span>
-              <span className="title">{title ?? "(untitled dataset)"}</span>
+              <span className="title">{name ?? "(untitled dataset)"}</span>
               <span className="field-label">Dataset URL:</span>
-              <span className="url">{sourceUrl ?? "(no source URL)"}</span>
+              <span className="url">{url ?? "(no source URL)"}</span>
               <span className="field-label">Performed by:</span>
-              <span className="performer">{model ?? "(unknown)"}</span>
+              <span className="performer">{reviewer ?? "(unknown)"}</span>
               <span className="field-label">Assessment performed:</span>
               <span className="timestamp">
-                {assessedAt ? formatTimestamp(assessedAt) : "(unknown)"}
+                {reviewDate ? formatTimestamp(reviewDate) : "(unknown)"}
               </span>
               <span className="field-label">ID:</span>
               <span className="entry-id">{entry.id}</span>

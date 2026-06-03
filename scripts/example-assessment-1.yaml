@@ -1,0 +1,70 @@
+# Example AIRBDS assessment in the review-template shape (v0.3).
+# POSTed to /api/upload by the test-upload scripts, which fill in
+# reviewer.review_date with the current date and time first (it is left blank
+# here). See the
+# upstream review_template.yaml in the airbds-metric repo for the blank template,
+# and airbds_metric_v0.3.yaml for the full question text, guidance, and scoring.
+#
+# This is an AI-performed assessment, so reviewer.name holds the model name.
+# reviewer.initials/orcid/affiliation, dataset.hosting_resource/accession,
+# answers.*.not_applicable and result.* are accepted but ignored by auto-airbds
+# (the score and grade are recomputed from the metric definition).
+
+schema_version: "0.3"
+
+reviewer:
+  name: "claude-opus-4-7"   # Model name for an AI assessment
+  initials: ""
+  orcid: ""
+  affiliation: ""
+  review_date: ""             # Left blank; the upload script fills in the current date and time before upload (a date alone is also valid)
+
+dataset:
+  name: "Mediterranean Marine Invertebrate Occurrence Records 2015–2023"
+  url: "https://example-data-portal.org/datasets/med-marine-invert"
+  hosting_resource: "GBIF-connected IPT"
+  accession: "10.5281/zenodo.xxxxxx"
+  comments: >
+    The dataset is highly AI-ready: it carries a persistent DOI, machine-readable
+    Darwin Core/EML metadata, an AI/ML-permissive CC0 licence, documented
+    provenance, and consistent open formats. It falls short of Gold because bias
+    is undocumented (ACM-11) and some records are incomplete (ACM-19); addressing
+    those two Important items would raise it to Gold.
+
+process_comments: ""
+
+answers:
+  ACM-1:  { answer: "Yes", comments: "The full set of occurrence records is retrievable from the landing page without partial gating. No subset restrictions were observed." }
+  ACM-2:  { answer: "Yes", comments: "Metadata is packaged as EML within the same Darwin Core Archive as the data. It is also displayed on the dataset's GBIF landing page." }
+  ACM-3:  { answer: "Yes", comments: "The Darwin Core Archive download is accompanied by a published MD5 checksum. Downloads can be verified against it before use." }
+  ACM-4:  { answer: "Yes", comments: "The dataset is released under CC0 1.0, stated on the landing page and in the EML. The licence is expressed as a resolvable URI." }
+  ACM-5:  { answer: "Yes", comments: "The licence is CC0 1.0, a standard Creative Commons licence. It is expressed as a resolvable URI, making it machine-readable." }
+  ACM-6:  { answer: "Yes", comments: "The dataset is published through a GBIF-connected IPT, which is FAIR-compliant. It provides persistent identifiers, rich metadata, and standardised access." }
+  ACM-7:  { answer: "Yes", comments: "The data are hosted on a GBIF-connected IPT instance built for biodiversity data publishing. The platform is purpose-built for scientific datasets." }
+  ACM-8:  { answer: "Yes", comments: "The dataset is indexed and discoverable through GBIF's search interface. Faceted search by taxon and region is supported." }
+  ACM-9:  { answer: "Yes", comments: "A registered DOI (10.5281/zenodo.xxxxxx) is assigned and resolves to the current version. The identifier is globally unique and persistent." }
+  ACM-10: { answer: "No",  comments: "Updated releases overwrite the prior file with no versioned history exposed. Only a single 'current' version is retrievable." }
+  ACM-11: { answer: "No",  comments: "The metadata does not discuss sampling or geographic bias. Spatial coverage is uneven but unacknowledged." }
+  ACM-12: { answer: "Yes", comments: "Metadata is provided as EML within a Darwin Core Archive. Both are machine-readable, domain-standard formats for biodiversity data." }
+  ACM-13: { answer: "Yes", comments: "The EML record embeds the dataset DOI in the packageId field. The identifier matches the registered DOI." }
+  ACM-14: { answer: "No",  comments: "No access-control statement is present in the metadata. The dataset is fully open, but this is not declared explicitly." }
+  ACM-15: { answer: "Yes", comments: "The metadata describes the occurrence and sampling-event data types collected. Measurement modalities are listed per event." }
+  ACM-16: { answer: "Yes", comments: "The EML methods section documents cleaning, taxonomic matching, and coordinate validation steps. The steps are detailed enough to reproduce." }
+  ACM-17: { answer: "Yes", comments: "Collector, institution, and sampling protocol are recorded per event. The processing lineage is described in the metadata." }
+  ACM-18: { answer: "Yes", comments: "Records carry unique occurrenceIDs and a deduplication step is documented. No duplicate identifiers were detected on inspection." }
+  ACM-19: { answer: "No",  comments: "Roughly 18% of records lack coordinate uncertainty and several event dates are year-only. Expected completeness for some fields is not met." }
+  ACM-20: { answer: "Yes", comments: "All entries use consistent Darwin Core term names and data types. Units for measurements are uniform across records." }
+  ACM-21: { answer: "Yes", comments: "Field names conform to the Darwin Core standard and taxa link to WoRMS. Units follow recognised biodiversity conventions." }
+  ACM-22: { answer: "Yes", comments: "Data are distributed as CSV within a Darwin Core Archive. This is an appropriate, widely supported format for tabular occurrence data." }
+  ACM-23: { answer: "Yes", comments: "CSV is open and non-proprietary. No proprietary tooling is needed to read the records." }
+  # Ethics questions — "Yes" because the dataset has no human/animal subjects.
+  ACM-24: { answer: "Yes", comments: "The dataset records species occurrences and contains no human or animal subject data. This question defaults to 'Yes' as it is not applicable.", not_applicable: true }
+  ACM-25: { answer: "Yes", comments: "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable.", not_applicable: true }
+  ACM-26: { answer: "Yes", comments: "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable.", not_applicable: true }
+  ACM-27: { answer: "Yes", comments: "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable.", not_applicable: true }
+  ACM-28: { answer: "Yes", comments: "No human subject data is present in the dataset. This question defaults to 'Yes' as it is not applicable.", not_applicable: true }
+
+# Calculated fields — ignored by auto-airbds (recomputed from the metric).
+result:
+  weighted_score: 702
+  grade: "Silver"
