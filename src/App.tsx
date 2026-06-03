@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { UploadEntry } from "./types";
 import { UploadList } from "./components/UploadList";
+import { UploadButton } from "./components/UploadButton";
 import { EntryView } from "./components/EntryView";
 import { navigate, useHashRoute } from "./useHashRoute";
 
@@ -8,27 +9,19 @@ function App() {
   const [entries, setEntries] = useState<UploadEntry[]>([]);
   const path = useHashRoute();
 
+  const load = useCallback(() => {
+    fetch("/api/entries")
+      .then((r) => r.json())
+      .then((data: UploadEntry[]) => setEntries(data))
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
-    let cancelled = false;
-
-    function load() {
-      fetch("/api/entries")
-        .then((r) => r.json())
-        .then((data: UploadEntry[]) => {
-          if (cancelled) return;
-          setEntries(data);
-        })
-        .catch(() => {});
-    }
-
     load();
     // D1 is strongly consistent, so polling surfaces new uploads promptly.
     const interval = setInterval(load, 3000);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [load]);
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/entries/${id}`, { method: "DELETE" });
@@ -62,9 +55,10 @@ function App() {
         <>
           <h1>Assessment Uploads</h1>
           <p className="subtitle">
-            POST a YAML (or JSON) assessment to <code>/api/upload</code> to add
-            entries.
+            Upload a YAML assessment with the button below, or POST one to{" "}
+            <code>/api/upload</code>.
           </p>
+          <UploadButton onUploaded={load} />
           <UploadList
             entries={entries}
             onSelect={(id) => navigate(`/entry/${encodeURIComponent(id)}`)}

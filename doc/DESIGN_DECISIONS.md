@@ -51,3 +51,16 @@ Assessments are uploaded to `POST /api/upload`.
 - **Why a separate `functions/metrics.ts`.** The validator needs the per-version question-id set, but the Pages Functions bundle has no YAML loader and can't import `src/metrics/`. We keep a minimal plain-data descriptor (versions → question ids) in `functions/metrics.ts`. To stop it drifting from the real metric, `functions/metrics.test.ts` asserts it matches the YAML (Vitest *can* import the YAML, via the shared Vite config) — single source of truth enforced by test rather than a codegen step.
 
 These choices are experimental and reversible; the previous bespoke JSON assessment shape was dropped in favour of this one.
+
+## Public upload endpoint and per-IP rate limiting
+
+A front-page upload button means the browser must call `POST /api/upload`, and a shared API key shipped in frontend code is not a secret. We also want to keep accepting machine/automated uploads.
+
+**Decision:** make `/api/upload` **public** (no API key) and limit abuse with a **per-IP rate limit counted in D1**, plus a global cap.
+
+- **No API key.** The key gate was removed; the rate limit is the control. (The endpoint was already effectively open to anyone who could read the key.) A CAPTCHA such as Turnstile was rejected because it would block the machine uploads we want to allow.
+- **Why D1, not the Workers Rate Limiting binding or a WAF rule.** The Workers Rate Limiting binding **is not supported by Pages Functions** (supported bindings: KV, D1, Durable Objects, R2, Vectorize, Workers AI, Service bindings, Queues, Hyperdrive, Analytics Engine, vars/secrets). A WAF rate-limiting rule would work but lives in the dashboard/API, not the repo — we want config-as-code and no manual dashboard steps. Counting in D1 reuses the existing `DB` binding with no new infrastructure.
+- **Privacy.** We never store a raw IP: `CF-Connecting-IP` is hashed (salted SHA-256) and only the hash is stored, in a `rate_limit` table whose rows are pruned to the active window. An IP is personal data under UK/EU GDPR, so this keeps the footprint minimal. Default limit: 20 uploads/IP/hour — tunable in `functions/ratelimit.ts`, and D1 allows long windows (the binding only supports 10s/60s).
+- **Global cap.** `MAX_UPLOADS` (raised 30 → 50) bounds total stored uploads as a backstop.
+
+**Known gaps (accepted for the experimental phase).** The global cap can still be filled with junk (a self-DoS), and `DELETE /api/entries/:id` is unauthenticated. A moderation/holding queue and authenticated admin actions are planned — see `PLAN.md`.

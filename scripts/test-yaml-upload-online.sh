@@ -1,21 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 URL="https://auto-airbds.pages.dev/api/upload"
 
-# Stamp the assessment with the current UTC date and time as its review date, so
-# each upload reflects when the script was run rather than leaving it blank.
-# (review_date accepts a date or a full timestamp; a human reviewer might give
-# only a date.)
+# Assessment YAML file to upload (required).
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $(basename "$0") <assessment.yaml>" >&2
+  exit 1
+fi
+FILE="$1"
+if [[ ! -f "$FILE" ]]; then
+  echo "No such file: $FILE" >&2
+  exit 1
+fi
+
+# If review_date is blank, fill it with the current UTC date and time so the
+# upload reflects when the script was run. A review_date already set in the file
+# (e.g. a human reviewer's date) is left untouched.
 now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-payload="$(sed -E "s/(review_date:[[:space:]]*\")[^\"]*\"/\1${now}\"/" \
-  "${SCRIPT_DIR}/example-assessment-1.yaml")"
+payload="$(sed -E "s/(review_date:[[:space:]]*\")\"/\1${now}\"/" "$FILE")"
+review_date="$(printf '%s' "$payload" \
+  | sed -nE 's/^[[:space:]]*review_date:[[:space:]]*"([^"]*)".*/\1/p' | head -n1)"
 
 # Capture the response body and append the HTTP status code on the final line.
 response="$(curl -sS -X POST "$URL" \
   -H "Content-Type: application/yaml" \
-  -H "X-API-Key: auto-airbds-dev-key" \
   --data-binary "$payload" \
   -w $'\n%{http_code}')"
 
@@ -24,7 +33,8 @@ body="${response%$'\n'*}"
 
 if [[ "$status" =~ ^2 ]]; then
   echo "Upload succeeded (HTTP $status)."
-  echo "Review datetime: $now"
+  echo "Uploaded file: $FILE"
+  echo "Review datetime: $review_date"
   if id="$(printf '%s' "$body" | grep -o '"id":"[^"]*"' | head -n1 | cut -d'"' -f4)" && [[ -n "$id" ]]; then
     echo "Entry id: $id"
   fi

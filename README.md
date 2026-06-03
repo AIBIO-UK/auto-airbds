@@ -4,7 +4,7 @@ An experimental website for collecting, processing and publishing AIRBDS dataset
 
 - **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, `DELETE /api/entries/:id`)
 - **Cloudflare D1** — strongly-consistent SQLite database storing uploads, so new entries are visible to readers immediately
-- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw payload if it isn't a recognised assessment
+- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page has an upload button and lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw payload if it isn't a recognised assessment
 - **Vite** — build tool and dev server (YAML metric files are imported at build time via `@rollup/plugin-yaml`; uploaded YAML assessments are parsed at request time in the Function with the `yaml` package)
 
 ## Metric definitions
@@ -19,7 +19,7 @@ The **grade** (e.g. Gold/Silver/Bronze/Caution) is also computed, not trusted fr
 
 ## Upload format
 
-Assessments are uploaded to `POST /api/upload` as **YAML** in the shape of the AIRBDS [review template](https://github.com/AIBIO-UK/airbds-metric) (`review_template.yaml`). JSON is also accepted, since YAML is a superset of JSON. A filled example is in [`scripts/example-assessment-1.yaml`](./scripts/example-assessment-1.yaml).
+Assessments are uploaded to `POST /api/upload` as **YAML** in the shape of the AIRBDS [review template](https://github.com/AIBIO-UK/airbds-metric) (`review_template.yaml`). JSON is also accepted, since YAML is a superset of JSON. Use the **Upload assessment** button on the main page, or POST a file directly (e.g. the [test scripts](#test-upload-scripts)). A filled example is in [`scripts/example-assessment-1.yaml`](./scripts/example-assessment-1.yaml).
 
 The fields auto-airbds reads are:
 
@@ -33,6 +33,15 @@ The fields auto-airbds reads are:
 Other template fields (`reviewer.initials`/`orcid`/`affiliation`, `dataset.hosting_resource`/`accession`, `answers.*.not_applicable`, `result.*`) are accepted but ignored — the score and grade are recomputed from the metric definition, not trusted from the upload.
 
 Uploads are **validated server-side** and rejected with `400` (or `413` if too large) unless they are complete: a known `schema_version`, non-empty `reviewer.name`/`review_date` and `dataset.name`/`url`, and a `"Yes"`/`"No"` answer for **every** question in that metric version. The per-version question list the validator checks against lives in [`functions/metrics.ts`](./functions/metrics.ts) (the Functions bundle has no YAML loader, so it can't read the metric YAML directly); a unit test keeps it in sync with `src/metrics/`.
+
+### Public endpoint & abuse limits
+
+`/api/upload` is **public** — there is no API key, so both browser and machine uploads are allowed. Abuse is currently limited by:
+
+- **Per-IP rate limit** (default 20 uploads/hour), counted in D1 ([`functions/ratelimit.ts`](./functions/ratelimit.ts)). The client IP (`CF-Connecting-IP`) is hashed with a salted SHA-256 before storage — **no raw IP is kept** — and rows are pruned to the active window. Over-limit requests get `429`. (`CF-Connecting-IP` is absent under local `wrangler pages dev`, so all local uploads share one bucket.)
+- **Global cap** of 50 stored uploads (`MAX_UPLOADS`), returning `429` once full.
+
+These are interim measures. A moderation/holding queue and authenticated deletes are planned — see [`doc/PLAN.md`](./doc/PLAN.md).
 
 ## Configuration
 
@@ -60,7 +69,7 @@ npx wrangler pages dev dist
 # In another terminal, upload the example assessment. The helper script fills in
 # reviewer.review_date with the current date and time (it is blank in the file)
 # before POSTing:
-./scripts/test-yaml-upload-local.sh
+./scripts/test-yaml-upload-local.sh scripts/example-assessment-1.yaml
 
 # Open http://localhost:8788 to view entries
 ```
@@ -69,7 +78,7 @@ The default port is `8788`. Use `--port <number>` to change it.
 
 ### Database (D1) setup
 
-Uploads are stored in a Cloudflare D1 database named `auto-airbds`, bound as `DB` in [`wrangler.toml`](./wrangler.toml). The schema lives in [`schema.sql`](./schema.sql).
+Uploads are stored in a Cloudflare D1 database named `auto-airbds`, bound as `DB` in [`wrangler.toml`](./wrangler.toml). The schema lives in [`schema.sql`](./schema.sql) — the `entries` table plus a `rate_limit` table used for per-IP upload throttling. Re-apply it after pulling changes that add tables (every statement is `IF NOT EXISTS`, so it's safe to re-run).
 
 ```bash
 # Apply the schema locally (writes to .wrangler/)
@@ -86,14 +95,17 @@ If you recreate the database, update `database_id` under `[[d1_databases]]` in `
 
 ### Test upload scripts
 
-Scripts that upload `scripts/example-assessment-1.yaml` and report success or the server's error message. Each run rewrites the assessment's `reviewer.review_date` to the current date and time, so uploads reflect when the script was invoked:
+Scripts that upload an assessment YAML and report success (printing the file, review datetime, and new entry id) or the server's error message. They take the **path to the file to upload** as a required argument. If the file's `reviewer.review_date` is blank it is filled with the current date and time before upload, so uploads reflect when the script was invoked; a date already set in the file is left as-is.
 
 ```bash
-# Against a local `wrangler pages dev` server
-./scripts/test-yaml-upload-local.sh
+# Against a local `wrangler pages dev` server (upload the example fixture)
+./scripts/test-yaml-upload-local.sh scripts/example-assessment-1.yaml
+
+# Upload a different assessment file
+./scripts/test-yaml-upload-local.sh path/to/my-review.yaml
 
 # Against the deployed site
-./scripts/test-yaml-upload-online.sh
+./scripts/test-yaml-upload-online.sh scripts/example-assessment-1.yaml
 ```
 
 ## Tests

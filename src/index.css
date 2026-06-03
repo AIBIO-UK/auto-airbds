@@ -318,3 +318,46 @@ h1 {
   text-align: center;
   padding: 48px 0;
 }
+
+/* Upload control on the list page. */
+.upload-control {
+  margin: 0 0 20px;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.upload-btn:hover {
+  background: var(--accent-hover);
+}
+
+.upload-btn.is-busy {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.upload-status {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.upload-status-ok {
+  color: #15803d;
+}
+
+.upload-status-error {
+  color: #b91c1c;
+}

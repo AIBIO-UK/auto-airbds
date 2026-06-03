@@ -1,16 +1,23 @@
 import type { UploadEntry, Env } from "../types";
 import { parseAndValidate } from "../validation";
+import { allowUpload, hashIp } from "../ratelimit";
 
-const API_KEY = "auto-airbds-dev-key";
-const MAX_UPLOADS = 30;
+const MAX_UPLOADS = 50;
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   if (context.request.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  if (context.request.headers.get("X-API-Key") !== API_KEY) {
-    return new Response("Unauthorized", { status: 401 });
+  // The endpoint is public (no API key), so a per-IP rate limit is the abuse
+  // control. CF-Connecting-IP is absent under local `wrangler pages dev`, so all
+  // local uploads share one bucket.
+  const ip = context.request.headers.get("CF-Connecting-IP") ?? "unknown";
+  const ipHash = await hashIp(ip);
+  if (!(await allowUpload(context.env.DB, ipHash, Date.now()))) {
+    return new Response("Rate limit exceeded, please try again later", {
+      status: 429,
+    });
   }
 
   const countRow = await context.env.DB.prepare(
@@ -60,7 +67,7 @@ export const onRequestOptions: PagesFunction = async () => {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 };
