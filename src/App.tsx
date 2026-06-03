@@ -39,7 +39,7 @@ function App() {
       <header>auto-AIRBDS</header>
       <div className="banner" role="alert">
         <strong>Experimental and under development.</strong> Do not rely on any
-        of the assessments shown, they may be entirely wrong. Uploaded assessments may be deleted at any
+        of the assessments shown, they are for test purposes only. Uploaded assessments may be deleted at any
         time.
       </div>
       {entryMatch ? (
@@ -53,10 +53,10 @@ function App() {
         </>
       ) : (
         <>
-          <h1>Assessment Uploads</h1>
+          <h1>Assessments</h1>
           <p className="subtitle">
             Upload a YAML assessment with the button below, or POST one to{" "}
-            <code>/api/upload</code>.
+            <code>/api/upload</code>. Click on any assessment to see the results.
           </p>
           <UploadButton onUploaded={load} />
           <UploadList
