@@ -1,9 +1,10 @@
 # Example AIRBDS assessment in the review-template shape (v0.3).
-# POSTed to /api/upload by the test-upload scripts, which fill in
-# reviewer.review_date with the current date and time first (it is left blank
-# here). See the
-# upstream review_template.yaml in the airbds-metric repo for the blank template,
-# and airbds_metric_v0.3.yaml for the full question text, guidance, and scoring.
+# Upload it as-is (the Upload button, or POST /api/upload), or via the
+# test-upload scripts. reviewer.review_date is set below, so it is accepted
+# directly; the scripts leave an already-set date as-is and fill in the current
+# date/time only when it is blank. See the upstream review_template.yaml in the
+# airbds-metric repo for the blank template, and airbds_metric_v0.3.yaml for the
+# full question text, guidance, and scoring.
 #
 # This is an AI-performed assessment, so reviewer.name holds the model name.
 # reviewer.initials/orcid/affiliation, dataset.hosting_resource/accession,
@@ -17,7 +18,7 @@ reviewer:
   initials: ""
   orcid: ""
   affiliation: ""
-  review_date: ""             # Left blank; the upload script fills in the current date and time before upload (a date alone is also valid)
+  review_date: "2026-06-03T11:53:00Z"  # A full timestamp; a bare date (e.g. 2026-06-03) is also valid
 
 dataset:
   name: "Mediterranean Marine Invertebrate Occurrence Records 2015–2023"

@@ -85,9 +85,9 @@ npx wrangler d1 execute auto-airbds --local --file=./schema.sql
 # Start the local preview server (D1 binding comes from wrangler.toml)
 npx wrangler pages dev dist
 
-# In another terminal, upload the example assessment. The helper script fills in
-# reviewer.review_date with the current date and time (it is blank in the file)
-# before POSTing:
+# In another terminal, upload the example assessment. It already carries a
+# review_date, so it is accepted as-is; for files where review_date is blank the
+# helper script fills in the current date and time before POSTing:
 ./scripts/test-yaml-upload-local.sh scripts/example-assessment-1.yaml
 
 # Open http://localhost:8788 to view entries

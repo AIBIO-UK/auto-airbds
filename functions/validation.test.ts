@@ -1,3 +1,8 @@
+// Runs under Node (not jsdom) so import.meta.url is a file: URL and the example
+// fixture can be read from disk.
+// @vitest-environment node
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { parseAndValidate, validateAssessment } from "./validation";
 import { METRIC_QUESTION_IDS } from "./metrics";
@@ -160,5 +165,20 @@ describe("validateAssessment", () => {
     const obj = validObject();
     (obj.answers as Record<string, { answer: string }>)["ACM-1"].answer = "Maybe";
     expect(validateAssessment(obj)).toMatch(/must be "Yes" or "No"/);
+  });
+});
+
+describe("example fixture", () => {
+  it("accepts the committed example assessment as a complete upload", () => {
+    // Guards against the example regressing (e.g. a blank review_date), so it
+    // always uploads directly via the Upload button / POST, not just via the
+    // helper script that backfills the date.
+    const yaml = readFileSync(
+      fileURLToPath(
+        new URL("../scripts/example-assessment-1.yaml", import.meta.url)
+      ),
+      "utf8"
+    );
+    expect(parseAndValidate(yaml).ok).toBe(true);
   });
 });
