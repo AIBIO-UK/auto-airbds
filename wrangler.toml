@@ -17,3 +17,14 @@ compatibility_date = "2026-05-25"
 binding = "DB"
 database_name = "auto-airbds"
 database_id = "edaec72b-969f-4f90-9d7d-13c7168b517f"
+
+# Cloudflare Access — admin authentication (see functions/auth.ts and the
+# "Admin area" section of the README). These are NON-secret identifiers, so they
+# live here as config-as-code (unlike secrets, which are set with
+# `wrangler pages secret put`). Fill in from your Access application:
+#   ACCESS_TEAM_DOMAIN — your Zero Trust team domain (e.g. "yourteam.cloudflareaccess.com")
+#   ACCESS_AUD         — the Access application's Audience (AUD) tag
+# Until both are set correctly, admin deletes fail closed (HTTP 401).
+[vars]
+ACCESS_TEAM_DOMAIN = "REPLACE_WITH_YOUR_TEAM.cloudflareaccess.com"
+ACCESS_AUD = "REPLACE_WITH_YOUR_ACCESS_APPLICATION_AUD"

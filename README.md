@@ -2,9 +2,9 @@ An experimental website for collecting, processing and publishing AIRBDS dataset
 
 ## Infrastructure
 
-- **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, `DELETE /api/entries/:id`)
+- **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, and the admin-only `DELETE /api/entries/:id`)
 - **Cloudflare D1** — strongly-consistent SQLite database storing uploads, so new entries are visible to readers immediately
-- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page has an upload button and lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw payload if it isn't a recognised assessment
+- **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page has an upload button and lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw payload if it isn't a recognised assessment. The public list is read-only; deleting uploads is done in a separate [admin area](#admin-area), reached via the **Admin Area** button in the top-right of the header
 - **Vite** — build tool and dev server (YAML metric files are imported at build time via `@rollup/plugin-yaml`; uploaded YAML assessments are parsed at request time in the Function with the `yaml` package)
 
 ## Metric definitions
@@ -42,11 +42,29 @@ Uploads are **validated server-side** and rejected with `400` (or `413` if large
 - **Global cap** of 50 stored uploads (`MAX_UPLOADS`), returning `429` once full.
 - **Max upload size** of 256 KB (`MAX_UPLOAD_BYTES`), returning `413` — checked early via `Content-Length`, again after reading the body, and on the client before posting.
 
-These are interim measures. A moderation/holding queue and authenticated deletes are planned — see [`doc/PLAN.md`](./doc/PLAN.md).
+These are interim measures. **Deleting** uploads is now restricted to admins (see [Admin area](#admin-area)); a moderation/holding queue is still planned — see [`doc/PLAN.md`](./doc/PLAN.md).
+
+## Admin area
+
+Deleting uploads is an **admin-only** action. The public list (`/`) is read-only; an **Admin Area** button in the top-right of the header links to `/admin` — a separate page (its own Vite entry, so admin code never ships in the public bundle) that lists every upload with a delete (×) button.
+
+Authentication is handled by **Cloudflare Access** at the edge — there is no login form or password in this app. `/admin` is protected by an Access policy (an allowlist of admin emails); navigating there triggers Access's own login (e.g. an email one-time PIN). Adding or removing an admin is an edit to that allowlist — no code change or deploy. `DELETE /api/entries/:id` independently verifies the Access JWT it receives ([`functions/auth.ts`](./functions/auth.ts)), so it is safe even if called directly, and returns `401` for anyone who isn't a verified admin. The `/admin` page being reachable is *not* what authorises deletion — the verified JWT is.
+
+### Cloudflare Access setup (one-time)
+
+1. In the Cloudflare **Zero Trust** dashboard, create a self-hosted **Access application** covering the admin paths — `https://<your-site>/admin*` and `https://<your-site>/api/entries/*` (the per-entry DELETE path).
+2. Add a **policy** allowing your admin emails, with the login method you want (e.g. one-time PIN) and a **session duration** (e.g. 1 week — admins re-authenticate only when it lapses).
+3. Note the application's **Audience (AUD) tag** and your Zero Trust **team domain**, and set them in [`wrangler.toml`](./wrangler.toml) as `ACCESS_AUD` and `ACCESS_TEAM_DOMAIN` (non-secret identifiers). Until both are set correctly, deletes fail closed (`401`).
+
+The admin email allowlist lives in the Access policy (dashboard/Terraform), not in this repo.
+
+### Local development
+
+The Cloudflare Access edge isn't present under `wrangler pages dev`, so there is no Access JWT locally. To exercise the admin UI and deletes locally, set `ACCESS_DEV_BYPASS` in a `.dev.vars` file (copy [`.dev.vars.example`](./.dev.vars.example)); when set, [`functions/auth.ts`](./functions/auth.ts) treats every request as that admin. **Never** set this in production — it disables the auth check. The real email-PIN login can be verified end-to-end on a Cloudflare Pages **preview deployment**.
 
 ## Configuration
 
-Cloudflare Pages configuration is kept in the repository as code in [`wrangler.toml`](./wrangler.toml) (project name, build output directory, compatibility date, and the `DB` D1 database binding).
+Cloudflare Pages configuration is kept in the repository as code in [`wrangler.toml`](./wrangler.toml) (project name, build output directory, compatibility date, the `DB` D1 database binding, and the non-secret Cloudflare Access vars `ACCESS_TEAM_DOMAIN`/`ACCESS_AUD` — see [Admin area](#admin-area)).
 
 When this file is present it is the **source of truth** for the bindings and variables it defines — the equivalent Dashboard settings for those environments become read-only. Keep every required binding listed here, otherwise deployed Functions will lose access to them.
 

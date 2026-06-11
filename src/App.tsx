@@ -23,12 +23,6 @@ function App() {
     return () => clearInterval(interval);
   }, [load]);
 
-  async function handleDelete(id: string) {
-    const res = await fetch(`/api/entries/${id}`, { method: "DELETE" });
-    if (!res.ok) return;
-    setEntries((prev) => prev.filter((e) => e.id !== id));
-  }
-
   const entryMatch = path.match(/^\/entry\/(.+)$/);
   const selected = entryMatch
     ? entries.find((e) => e.id === decodeURIComponent(entryMatch[1])) ?? null
@@ -36,7 +30,15 @@ function App() {
 
   return (
     <div className="app">
-      <header>auto-AIRBDS</header>
+      <header className="site-header">
+        <span className="site-title">auto-AIRBDS</span>
+        {/* Real-path link (not a hash route) so it hits /admin, which is
+            protected by Cloudflare Access. Deletion lives there now; the
+            public list below is read-only. */}
+        <a className="admin-link" href="/admin">
+          Admin Area
+        </a>
+      </header>
       <div className="banner" role="alert">
         <strong>Experimental and under development.</strong> Do not rely on any
         of the assessments shown, they are for test purposes only. Uploaded assessments may be deleted at any
@@ -53,7 +55,7 @@ function App() {
         </>
       ) : (
         <>
-          <h1>Assessments</h1>
+          <h1>Assessment Uploads</h1>
           <p className="subtitle">
             Upload a YAML assessment with the button below, or POST one to{" "}
             <code>/api/upload</code>. Click on any assessment to see the results.
@@ -62,7 +64,6 @@ function App() {
           <UploadList
             entries={entries}
             onSelect={(id) => navigate(`/entry/${encodeURIComponent(id)}`)}
-            onDelete={handleDelete}
           />
         </>
       )}

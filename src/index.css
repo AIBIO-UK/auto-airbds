@@ -22,13 +22,40 @@ body {
   margin: 0;
 }
 
-header {
+header,
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.site-title {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #94a3b8;
-  margin-bottom: 8px;
+}
+
+/* Admin entry point, top-right of the header. Visible to everyone; the page
+   it links to (/admin) is gated by Cloudflare Access, so this is just a
+   convenience, not a security boundary. */
+.admin-link {
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.admin-link:hover {
+  background: var(--active-bg);
+  border-color: var(--accent);
 }
 
 .banner {

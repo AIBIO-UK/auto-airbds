@@ -13,7 +13,7 @@
 
 ## Management
 - May need a feature for a user to complain about an assessment
-- Need an admin role that can delete assessments unless we rely on this being done on a github storage backend. (Note: `DELETE /api/entries/:id` is currently unauthenticated — must be locked down now that uploads are public.)
+- ~~Need an admin role that can delete assessments~~ **Done:** deletion is admin-only, gated by **Cloudflare Access** (an allowlist of admin emails; multi-admin, equal rights). `DELETE /api/entries/:id` verifies the Access JWT ([`functions/auth.ts`](../functions/auth.ts)); the public list is read-only with an **Admin** button linking to `/admin`. See the README "Admin area" and `DESIGN_DECISIONS.md`. (Doing deletion via a GitHub storage backend instead remains a separate future option.)
 
 ## Information
 - Add a page describing the scoring system for a version of the AIRBDS metric. We should be able to auto-generate this out of the appropriate metrics YAML.
