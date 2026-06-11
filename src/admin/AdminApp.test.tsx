@@ -21,7 +21,7 @@ describe("AdminApp", () => {
     vi.restoreAllMocks();
   });
 
-  it("lists entries and deletes one when the × is clicked", async () => {
+  it("lists entries and deletes one when the trash button is clicked", async () => {
     // Stateful store so the polling GET stays consistent with the DELETE.
     let store = ENTRIES.map((e) => ({ ...e }));
     vi.stubGlobal(
@@ -39,7 +39,7 @@ describe("AdminApp", () => {
     render(<AdminApp />);
     await screen.findByText("Test Dataset");
 
-    await userEvent.click(screen.getByRole("button", { name: "×" }));
+    await userEvent.click(screen.getByRole("button", { name: /delete/i }));
 
     await waitFor(() =>
       expect(screen.queryByText("Test Dataset")).not.toBeInTheDocument()
@@ -60,7 +60,7 @@ describe("AdminApp", () => {
     render(<AdminApp />);
     await screen.findByText("Test Dataset");
 
-    await userEvent.click(screen.getByRole("button", { name: "×" }));
+    await userEvent.click(screen.getByRole("button", { name: /delete/i }));
 
     await screen.findByText(/session has expired/i);
     // The entry is still listed because the delete was rejected.

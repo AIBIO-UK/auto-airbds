@@ -52,7 +52,7 @@ export function AdminApp() {
       <h1>Manage uploads</h1>
       <p className="subtitle">
         Deleting an assessment is permanent. Click an entry to view it, or use
-        the × button to remove it.
+        the trash button to remove it.
       </p>
       {error && <p className="upload-status upload-status-error">{error}</p>}
       <UploadList

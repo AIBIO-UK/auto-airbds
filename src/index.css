@@ -158,10 +158,12 @@ h1 {
 .delete-btn {
   flex-shrink: 0;
   width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg);
-  font-size: 16px;
   line-height: 1;
   color: #94a3b8;
   cursor: pointer;
