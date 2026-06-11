@@ -4,7 +4,11 @@ import { formatTimestamp } from "../format";
 interface Props {
   entries: UploadEntry[];
   onSelect: (id: string) => void;
-  onDelete: (id: string) => void;
+  /**
+   * When provided, each entry shows a delete button. Omitted on the public
+   * list (which is read-only); supplied on the admin page.
+   */
+  onDelete?: (id: string) => void;
 }
 
 export function UploadList({ entries, onSelect, onDelete }: Props) {
@@ -32,9 +36,11 @@ export function UploadList({ entries, onSelect, onDelete }: Props) {
               <span className="field-label">ID:</span>
               <span className="entry-id">{entry.id}</span>
             </button>
-            <button className="delete-btn" onClick={() => onDelete(entry.id)}>
-              &times;
-            </button>
+            {onDelete && (
+              <button className="delete-btn" onClick={() => onDelete(entry.id)}>
+                &times;
+              </button>
+            )}
           </li>
         );
       })}

@@ -13,6 +13,12 @@ dist
 dist-ssr
 *.local
 
+# Local dev vars/secrets for `wrangler pages dev` (the .example is committed).
+.dev.vars
+
+# Claude Code local state (config + nested git worktrees).
+.claude/
+
 # Local ad-hoc test assessments dropped in scripts/ for manual uploads.
 # The committed example fixture is kept.
 scripts/*.yaml

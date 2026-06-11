@@ -1,0 +1,8 @@
+# Example local-dev variables for `wrangler pages dev`.
+# Copy this file to `.dev.vars` (which is gitignored) to use it.
+#
+# ACCESS_DEV_BYPASS makes admin authentication treat every request as this
+# admin, so you can open /admin and delete entries locally without the
+# Cloudflare Access edge (which is absent under `wrangler pages dev`).
+# NEVER set this in production — it disables the auth check.
+ACCESS_DEV_BYPASS=dev@example.com

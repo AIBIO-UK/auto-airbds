@@ -7,8 +7,9 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   // Ignore build output: `dist` (Vite) and `.wrangler` (Pages Functions dev
-  // bundles, which inline dependencies and aren't ours to lint).
-  globalIgnores(['dist', '.wrangler']),
+  // bundles, which inline dependencies and aren't ours to lint), plus `.claude`
+  // (Claude Code local state, including nested git worktrees).
+  globalIgnores(['dist', '.wrangler', '.claude']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

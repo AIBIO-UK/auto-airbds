@@ -63,4 +63,25 @@ A front-page upload button means the browser must call `POST /api/upload`, and a
 - **Privacy.** We never store a raw IP: `CF-Connecting-IP` is hashed (salted SHA-256) and only the hash is stored, in a `rate_limit` table whose rows are pruned to the active window. An IP is personal data under UK/EU GDPR, so this keeps the footprint minimal. Default limit: 20 uploads/IP/hour — tunable in `functions/ratelimit.ts`, and D1 allows long windows (the binding only supports 10s/60s).
 - **Global cap.** `MAX_UPLOADS` (raised 30 → 50) bounds total stored uploads as a backstop.
 
-**Known gaps (accepted for the experimental phase).** The global cap can still be filled with junk (a self-DoS), and `DELETE /api/entries/:id` is unauthenticated. A moderation/holding queue and authenticated admin actions are planned — see `PLAN.md`.
+**Known gaps (accepted for the experimental phase).** The global cap can still be filled with junk (a self-DoS). `DELETE /api/entries/:id` is now authenticated (admin-only — see the next decision); a moderation/holding queue is still planned — see `PLAN.md`.
+
+## Admin authentication via Cloudflare Access
+
+Once uploads became public, the open `DELETE /api/entries/:id` had to be locked down, and we wanted to grant deletion to a small, growing set of trusted admins (multiple people, equal rights).
+
+**Decision:** gate the admin area (`/admin`) and the delete endpoint with **Cloudflare Access** (Zero Trust) — an email allowlist with edge-handled login — and verify the forwarded Access JWT inside the Function for defence in depth.
+
+Options considered, lightest to heaviest:
+
+- **Shared password / bearer token.** One secret, checked server-side. Lightest to build, but gives no per-person identity, no audit of who deleted what, and revoking one person means rotating the secret for everyone. Acceptable as an interim *single*-admin measure, not as a destination once multiple admins are wanted.
+- **Cloudflare Access (chosen).** Cloudflare authenticates the admin at the edge (e.g. email one-time PIN) and forwards a signed JWT carrying their email. Adding/removing an admin is editing the Access policy's allowlist — no code, no deploy — and each admin signs in as themselves, with Cloudflare's audit logs. Scales from one to many admins with zero code change. The cost is that the allowlist lives in the Access dashboard/Terraform, not the repo — but *who is an admin* is operational data that wouldn't belong in a public repo anyway (like a secret), so this is a smaller config-as-code compromise than, say, the WAF rule rejected above.
+- **Self-built accounts (a users table in D1).** Per-person identity and revocation kept entirely in our stack, but we would own registration/invites, password or magic-link handling, sessions, and their ongoing security — too much surface to build and maintain for a few trusted admins when Access provides it.
+
+Implementation notes:
+
+- **No login code in the app.** Access serves the login UI; the app only links to `/admin` (the **Admin Area** button). Security is enforced at the edge and re-checked in the Function — never by hiding the page.
+- **Why `/admin` is a real path, not a hash route.** Access matches on URL path and never sees the URL fragment, so a hash-routed `#/admin` could not be protected. The public app keeps its hash routing; `/admin` is a separate Vite entry at a real path, which also keeps admin code out of the public bundle.
+- **JWT verification.** [`functions/auth.ts`](../functions/auth.ts) reads the token from the `Cf-Access-Jwt-Assertion` header (or the `CF_Authorization` cookie), fetches the team JWKS, and validates the signature plus `aud`/`iss`/`exp` with WebCrypto (RS256) — no new dependency. It fails closed on anything missing or invalid.
+- **Local development.** The Access edge is absent under `wrangler pages dev`, so `ACCESS_DEV_BYPASS` (in a gitignored `.dev.vars`) stands in for a verified admin locally; the real email-PIN login is verified on a Cloudflare Pages preview deployment.
+
+These choices are experimental and reversible.
