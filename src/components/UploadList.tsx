@@ -1,5 +1,6 @@
 import { datasetInfo, type UploadEntry } from "../types";
 import { formatTimestamp } from "../format";
+import { moderationStatus } from "../moderation";
 
 interface Props {
   entries: UploadEntry[];
@@ -20,6 +21,7 @@ export function UploadList({ entries, onSelect, onDelete }: Props) {
     <ul className="upload-list">
       {entries.map((entry) => {
         const { name, url, reviewDate, reviewer } = datasetInfo(entry.data);
+        const status = moderationStatus();
         return (
           <li key={entry.id}>
             <button onClick={() => onSelect(entry.id)}>
@@ -35,6 +37,8 @@ export function UploadList({ entries, onSelect, onDelete }: Props) {
               </span>
               <span className="field-label">ID:</span>
               <span className="entry-id">{entry.id}</span>
+              <span className="field-label">Status:</span>
+              <span className={`status status-${status}`}>{status}</span>
             </button>
             {onDelete && (
               <button className="delete-btn" onClick={() => onDelete(entry.id)}>

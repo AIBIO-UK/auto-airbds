@@ -1,5 +1,6 @@
 import { assessmentDetails, datasetInfo, type UploadEntry } from "../types";
 import { formatTimestamp } from "../format";
+import { moderationStatus } from "../moderation";
 import { AssessmentReport } from "./AssessmentReport";
 
 interface Props {
@@ -12,6 +13,7 @@ export function EntryView({ entry, onBack }: Props) {
     entry.data
   );
   const hasReport = assessmentDetails(entry.data).results.length > 0;
+  const status = moderationStatus();
 
   return (
     <div className="entry-view">
@@ -33,6 +35,8 @@ export function EntryView({ entry, onBack }: Props) {
         </span>
         <span className="field-label">ID:</span>
         <span className="entry-id">{entry.id}</span>
+        <span className="field-label">Status:</span>
+        <span className={`status status-${status}`}>{status}</span>
       </div>
       {hasReport ? (
         <AssessmentReport data={entry.data} metricVersion={metricVersion} />

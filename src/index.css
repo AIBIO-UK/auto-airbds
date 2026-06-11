@@ -211,6 +211,18 @@ h1 {
   font-size: 12px;
 }
 
+/* Moderation status in the metadata box. Same size as the other field values,
+   but deliberately loud — bold and capitalised — to catch attention. The
+   "unmoderated" state is red; a later "moderated" state adds its own colour. */
+.status {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-unmoderated {
+  color: #dc2626;
+}
+
 /* In the list, values are truncated to a single line. */
 .upload-list .title,
 .upload-list .entry-id,

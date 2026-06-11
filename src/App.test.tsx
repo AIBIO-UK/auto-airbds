@@ -67,6 +67,15 @@ describe("App routing", () => {
     expect(screen.queryByText(/"score": 42/)).not.toBeInTheDocument();
   });
 
+  it("tags each list entry with its moderation status", async () => {
+    render(<App />);
+
+    await screen.findByText("29 May 2026, 10:00 UTC");
+    // Every entry on the list shows its moderation status (unmoderated for now).
+    expect(screen.getAllByText("Status:")).toHaveLength(ENTRIES.length);
+    expect(screen.getAllByText("unmoderated")).toHaveLength(ENTRIES.length);
+  });
+
   it("navigates to a separate page when an assessment is clicked", async () => {
     render(<App />);
 
@@ -91,6 +100,10 @@ describe("App routing", () => {
     // The AIRBDS metric version is shown on the detail page.
     expect(screen.getByText(/AIRBDS version/i)).toBeInTheDocument();
     expect(screen.getByText("0.3")).toBeInTheDocument();
+    // Every entry is tagged with a moderation status (unmoderated for now),
+    // shown at the bottom of the metadata box.
+    expect(screen.getByText("Status:")).toBeInTheDocument();
+    expect(screen.getByText("unmoderated")).toBeInTheDocument();
   });
 
   it("falls back to the raw payload when there are no answers", async () => {
