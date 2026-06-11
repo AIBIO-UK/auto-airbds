@@ -13,6 +13,7 @@
 - Probably store assessments in github for record keeping. Using a Cloudflare D1 database is temporary.
 
 ## Management
+- Need admin action logging so we know who deleted an entry and when (would cover other admin functions in the future)
 - May need a feature for a user to complain about an assessment
 - ~~Need an admin role that can delete assessments~~ **Done:** deletion is admin-only, gated by **Cloudflare Access** (an allowlist of admin emails; multi-admin, equal rights). `DELETE /api/entries/:id` verifies the Access JWT ([`functions/auth.ts`](../functions/auth.ts)); the public list is read-only with an **Admin** button linking to `/admin`. See the README "Admin area" and `DESIGN_DECISIONS.md`. (Doing deletion via a GitHub storage backend instead remains a separate future option.)
 
