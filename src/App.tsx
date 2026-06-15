@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { UploadEntry } from "./types";
 import { UploadList } from "./components/UploadList";
 import { UploadButton } from "./components/UploadButton";
+import { SheetImportForm } from "./components/SheetImportForm";
 import { EntryView } from "./components/EntryView";
 import { navigate, useHashRoute } from "./useHashRoute";
 
@@ -24,6 +25,7 @@ function App() {
   }, [load]);
 
   const entryMatch = path.match(/^\/entry\/(.+)$/);
+  const importing = path === "/import-sheet";
   const selected = entryMatch
     ? entries.find((e) => e.id === decodeURIComponent(entryMatch[1])) ?? null
     : null;
@@ -53,14 +55,26 @@ function App() {
             <p className="empty">Assessment not found.</p>
           )}
         </>
+      ) : importing ? (
+        <>
+          <h1>Import assessment from Google Sheet</h1>
+          <SheetImportForm onImported={load} />
+        </>
       ) : (
         <>
           <h1>Assessment Uploads</h1>
           <p className="subtitle">
-            Upload a YAML assessment with the button below, or POST one to{" "}
-            <code>/api/upload</code>. Click on any assessment to see the results.
+            Upload a YAML assessment or import one from a Google Sheet with the
+            buttons below, or POST YAML to <code>/api/upload</code>. Click on any
+            assessment to see the results.
           </p>
-          <UploadButton onUploaded={load} />
+          <div className="upload-actions">
+            <UploadButton onUploaded={load} />
+            {/* Hash route so it works without SPA-fallback server config. */}
+            <a className="upload-btn upload-btn-link" href="#/import-sheet">
+              Upload assessment v0.3 (Google sheet)
+            </a>
+          </div>
           <UploadList
             entries={entries}
             onSelect={(id) => navigate(`/entry/${encodeURIComponent(id)}`)}

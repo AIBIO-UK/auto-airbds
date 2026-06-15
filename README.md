@@ -2,7 +2,7 @@ An experimental website for collecting, processing and publishing AIRBDS dataset
 
 ## Infrastructure
 
-- **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `GET /api/entries`, and the admin-only `DELETE /api/entries/:id`)
+- **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `POST /api/import-sheet`, `GET /api/entries`, and the admin-only `DELETE /api/entries/:id`)
 - **Cloudflare D1** — strongly-consistent SQLite database storing uploads, so new entries are visible to readers immediately
 - **React** — frontend SPA built with TypeScript (polls `/api/entries` so uploads appear without a manual reload). The main page has an upload button and lists the assessments; clicking one opens a separate page (hash-routed at `#/entry/:id`, so deep links work without SPA-fallback config) showing a scoring-summary box and a per-question results table — or the raw payload if it isn't a recognised assessment. The public list is read-only; deleting uploads is done in a separate [admin area](#admin-area), reached via the **Admin Area** button in the top-right of the header
 - **Vite** — build tool and dev server (YAML metric files are imported at build time via `@rollup/plugin-yaml`; uploaded YAML assessments are parsed at request time in the Function with the `yaml` package)
@@ -36,13 +36,60 @@ Uploads are **validated server-side** and rejected with `400` (or `413` if large
 
 ### Public endpoint & abuse limits
 
-`/api/upload` is **public** — there is no API key, so both browser and machine uploads are allowed. Abuse is currently limited by:
+`/api/upload` (and `/api/import-sheet`) are **public** — there is no API key, so both browser and machine uploads are allowed. Both share the same guards (in [`functions/ingest.ts`](./functions/ingest.ts)). Abuse is currently limited by:
 
 - **Per-IP rate limit** (default 20 uploads/hour), counted in D1 ([`functions/ratelimit.ts`](./functions/ratelimit.ts)). The client IP (`CF-Connecting-IP`) is hashed with a salted SHA-256 before storage — **no raw IP is kept** — and rows are pruned to the active window. Over-limit requests get `429`. (`CF-Connecting-IP` is absent under local `wrangler pages dev`, so all local uploads share one bucket.)
 - **Global cap** of 50 stored uploads (`MAX_UPLOADS`), returning `429` once full.
 - **Max upload size** of 256 KB (`MAX_UPLOAD_BYTES`), returning `413` — checked early via `Content-Length`, again after reading the body, and on the client before posting.
 
 These are interim measures. **Deleting** uploads is now restricted to admins (see [Admin area](#admin-area)); a moderation/holding queue is still planned — see [`doc/PLAN.md`](./doc/PLAN.md).
+
+## Importing from a Google Sheet
+
+As well as uploading YAML, an assessment can be imported straight from a public
+**Google Sheet** that follows the AIRBDS scoring template. The **Upload
+assessment (Google sheet)** button on the main page opens a form (hash-routed at
+`#/import-sheet`) that takes:
+
+- the **sheet URL** (or id) — the sheet must be shared *"anyone with the link"* so
+  the public CSV export works;
+- a **review date** (required) — the spreadsheet template has no review-date
+  field, so it is supplied here;
+- optional **reviewer initials** and **affiliation**.
+
+Submitting POSTs `{ url, review_date, initials?, affiliation? }` to
+`POST /api/import-sheet`. The browser cannot fetch the sheet itself (Google's CSV
+export sends no CORS headers), so the **conversion runs server-side** in the
+Function: it fetches the sheet's two tabs, converts them to the review format
+using the shared [`@airbds/converter-tools`](https://github.com/AIBIO-UK/airbds-metric)
+package (the same library the CLI uses), merges in the form fields, and then
+ingests through the **same validation and storage path** as `POST /api/upload`.
+
+Because `@airbds/converter-tools` pulls in `csv-parse` (which uses Node's
+`Buffer`/`stream`), the Functions runtime needs the `nodejs_compat`
+compatibility flag — set in [`wrangler.toml`](./wrangler.toml).
+
+The conversion to the converter `Metric` (question ids + which are Ethics-scope)
+is driven by [`functions/metrics.ts`](./functions/metrics.ts), so no metric YAML
+is parsed in the Functions bundle; a unit test keeps it in sync with
+`src/metrics/`.
+
+### Errors reported back
+
+The import only stores a **complete, scorable** assessment. Otherwise it responds
+with the full list of problems so the reviewer can fix the sheet (or the form)
+and import again, for example:
+
+- `Review date is required.`
+- `ACM-12: not answered.` / `ACM-7: answer "Maybe" is not "Yes" or "No".`
+- `Dataset link/URL is missing from the sheet.`
+- the converter's own fetch errors (sheet not shared, not a valid sheet id, or
+  not following the template).
+
+Status codes: `201` with the new entry (and any non-blocking `notices`, e.g.
+blank optional fields) on success; `422` with `{ error, problems }` when the
+sheet converted but is incomplete; `400` when the sheet can't be fetched/parsed
+or the body is invalid; `429` when a rate-limit/cap guard trips.
 
 ## Admin area
 

@@ -406,3 +406,102 @@ h1 {
 .upload-status-error {
   color: #b91c1c;
 }
+
+/* Two ingest actions side by side on the list page. */
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.upload-actions .upload-control {
+  margin: 0;
+}
+
+/* The Google Sheet import link reuses the filled (blue) .upload-btn style to
+   match the YAML upload button; as an <a> it only needs its underline removed. */
+.upload-btn-link {
+  text-decoration: none;
+}
+
+/* Google Sheet import form. */
+.import-form {
+  margin: 0 0 24px;
+}
+
+.import-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 520px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.field > span {
+  font-weight: 600;
+}
+
+.field em {
+  font-weight: 400;
+  color: #94a3b8;
+  font-style: normal;
+}
+
+.field input {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.field input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.import-problems,
+.import-notices {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.import-problems > p,
+.import-notices > p {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.import-problems {
+  color: #b91c1c;
+}
+
+.import-notices {
+  color: #64748b;
+}
+
+.import-problems ul,
+.import-notices ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.import-view-link {
+  margin: 12px 0 0;
+  font-size: 13px;
+}

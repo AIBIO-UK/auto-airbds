@@ -72,7 +72,7 @@ export function UploadButton({ onUploaded }: Props) {
   return (
     <div className="upload-control">
       <label className={`upload-btn${busy ? " is-busy" : ""}`}>
-        {busy ? "Uploading…" : "Upload assessment (YAML)"}
+        {busy ? "Uploading…" : "Upload assessment v0.3 (YAML)"}
         <input
           type="file"
           accept=".yaml,.yml,application/yaml,text/yaml"

@@ -85,3 +85,47 @@ Implementation notes:
 - **Local development.** The Access edge is absent under `wrangler pages dev`, so `ACCESS_DEV_BYPASS` (in a gitignored `.dev.vars`) stands in for a verified admin locally; the real email-PIN login is verified on a Cloudflare Pages preview deployment.
 
 These choices are experimental and reversible.
+
+## Google Sheet import: server-side conversion via a shared npm package
+
+Reviewers also fill in assessments as a Google Sheet (the AIRBDS scoring
+template), not just YAML. We wanted a one-paste import that ends up as the same
+stored assessment as a YAML upload, and reports completeness problems back to the
+reviewer. The conversion logic already exists as a TypeScript library in the
+`airbds-metric` repo (`src/google-sheet-converter/`).
+
+**Decision:** run the conversion **server-side** in a new `POST /api/import-sheet`
+Function, reusing that converter as the published npm package
+**`@airbds/converter-tools`**, and collect the sheet's missing **review date** in
+the import form rather than the sheet.
+
+- **Why server-side, not in the browser.** Google's CSV export endpoint sends no
+  CORS headers, so a browser `fetch` of the sheet is blocked. The converter's
+  `fetchSheet`/`convert` use only the global `fetch`, `csv-parse`, and `yaml`, so
+  they run in a Pages Function. This also keeps one validation/storage path: the
+  converted review is gated by the **same `validateAssessment`** as
+  `POST /api/upload` (via `functions/ingest.ts`), so both routes enforce identical
+  completeness rules and share the rate-limit/cap guards.
+- **Why a published npm package, not vendoring or a path dependency.** The two
+  repos are separate, and Cloudflare Pages builds only this repo, so a sibling
+  `file:` path won't resolve in the build container. Publishing the converter to
+  npm (a `tsc` build emitting `dist/` JS + types, consumed as a normal dependency)
+  is the robust option; the cost is a version-bump/publish loop on converter
+  changes. Vendoring (git subtree) was the considered alternative — no registry,
+  but manual re-sync and duplicated source.
+- **Why the review date comes from the form.** The spreadsheet template carries no
+  review-date field, but a scorable assessment requires one. Collecting it (plus
+  optional initials/affiliation) in the form is a website-only change and keeps
+  the metric repo untouched; the trade-off is that the date lives outside the
+  sheet artifact. Reading it from the sheet (extending the template + converter)
+  remains a possible follow-up — see `PLAN.md`.
+- **`nodejs_compat`.** `csv-parse` uses Node's `Buffer`/`stream`, so the Functions
+  runtime needs the `nodejs_compat` flag (`wrangler.toml`). Verified by booting
+  `wrangler pages dev` and confirming the route's converter import chain loads and
+  executes.
+- **No metric YAML in the bundle.** As with upload validation, the Functions
+  bundle has no YAML loader, so `functions/metrics.ts` builds the converter's
+  `Metric` (question ids + the Ethics-scope subset) from plain data, kept in sync
+  with `src/metrics/` by `functions/metrics.test.ts`.
+
+These choices are experimental and reversible.

@@ -10,6 +10,11 @@ name = "auto-airbds"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-05-25"
 
+# The Google Sheet import route (functions/api/import-sheet.ts) bundles
+# @airbds/converter-tools, whose csv-parse dependency uses Node's Buffer/stream.
+# nodejs_compat provides those APIs in the Functions runtime.
+compatibility_flags = ["nodejs_compat"]
+
 # Strongly-consistent SQLite store read by the API functions as `context.env.DB`
 # (see functions/api/upload.ts, functions/api/entries.ts and entries/[id].ts).
 # Strong consistency means uploads are visible to readers immediately, unlike KV.

@@ -1,8 +1,6 @@
-import type { UploadEntry, Env } from "../types";
+import type { Env } from "../types";
 import { parseAndValidate, MAX_UPLOAD_BYTES } from "../validation";
-import { allowUpload, hashIp } from "../ratelimit";
-
-const MAX_UPLOADS = 50;
+import { checkIngestGuards, storeEntry } from "../ingest";
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   if (context.request.method !== "POST") {
@@ -19,23 +17,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  // The endpoint is public (no API key), so a per-IP rate limit is the abuse
-  // control. CF-Connecting-IP is absent under local `wrangler pages dev`, so all
-  // local uploads share one bucket.
-  const ip = context.request.headers.get("CF-Connecting-IP") ?? "unknown";
-  const ipHash = await hashIp(ip);
-  if (!(await allowUpload(context.env.DB, ipHash, Date.now()))) {
-    return new Response("Rate limit exceeded, please try again later", {
-      status: 429,
-    });
-  }
-
-  const countRow = await context.env.DB.prepare(
-    "SELECT COUNT(*) AS count FROM entries"
-  ).first<{ count: number }>();
-  if ((countRow?.count ?? 0) >= MAX_UPLOADS) {
-    return new Response("Upload limit reached", { status: 429 });
-  }
+  // Shared rate-limit + stored-entry-cap guards (see functions/ingest.ts).
+  const guard = await checkIngestGuards(context.request, context.env);
+  if (guard) return guard;
 
   // Assessments are uploaded as YAML (or JSON — YAML is a superset). Read the
   // body as text and parse+validate it; reject anything that isn't a complete
@@ -52,17 +36,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return new Response(parsed.error, { status: parsed.status });
   }
 
-  const entry: UploadEntry = {
-    id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
-    data: parsed.data,
-  };
-
-  await context.env.DB.prepare(
-    "INSERT INTO entries (id, timestamp, data) VALUES (?, ?, ?)"
-  )
-    .bind(entry.id, entry.timestamp, JSON.stringify(entry.data))
-    .run();
+  const entry = await storeEntry(context.env, parsed.data);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

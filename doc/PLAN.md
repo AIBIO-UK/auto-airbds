@@ -7,7 +7,7 @@
     - Implemented (partial): every entry now shows a `STATUS` of `UNMODERATED` — both in the main list and at the bottom of its metadata box on the detail page (`src/moderation.ts`). A `moderated` status will follow once there is something to moderate entries with (Assessor Agent or human-in-the-loop).
 - Need a feature to reduce potential upload spamming. (Interim: the `/api/upload` endpoint is public but rate-limited per IP in D1, plus a global upload cap. Still want a moderation/holding queue so spam never appears publicly.)
 - May want a feature to give an uploader an id by which they can modify an assessment for a given period of time. For example, a human may ask their assistant to produce an initial assessment, upload that, but then realize that some of it is inaccurate and work with their assistant to improve it. Then they want to upload the improved version. This would also give them an opportunity to delete it.
-- This website could potentially also handle assessments done by humans, though these will likely come in a different from like a spreadsheet rather than as JSON. The workflow here may be considerably different.
+- ~~This website could potentially also handle assessments done by humans, though these will likely come in a different from like a spreadsheet rather than as JSON. The workflow here may be considerably different.~~ **Done (initial):** a public Google Sheet (following the AIRBDS template) can be imported via the **Upload assessment (Google sheet)** button / `POST /api/import-sheet`, which converts it server-side with `@airbds/converter-tools` and ingests it through the same validation/storage path as YAML. See the README "Importing from a Google Sheet" and `DESIGN_DECISIONS.md`. Possible follow-ups: read the review date (and initials/affiliation) from the sheet itself rather than the form; support other spreadsheet sources (Excel/CSV upload).
 
 ## Storage
 - Probably store assessments in github for record keeping. Using a Cloudflare D1 database is temporary.
@@ -22,3 +22,4 @@
 
 ## Other
 - Extend skill instructions to openai in airbs-metrics repository and test.
+- The upload buttons hardcode "v0.3" in their labels ("Upload assessment v0.3 (YAML)" / "(Google sheet)"). When v0.4 is released, revisit this — likely derive the version from the metric rather than hardcoding (the Google Sheet import is pinned to the converter's `SCHEMA_VERSION`, while the YAML upload accepts any known version).
