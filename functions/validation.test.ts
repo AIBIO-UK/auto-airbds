@@ -21,6 +21,20 @@ function validObject(): Record<string, unknown> {
   };
 }
 
+const IDS_V04 = METRIC_QUESTION_IDS["0.4"];
+
+/** A complete, valid assessment object for metric version 0.4. */
+function validObjectV04(): Record<string, unknown> {
+  const answers: Record<string, unknown> = {};
+  for (const id of IDS_V04) answers[id] = { answer: "Yes", comments: "ok" };
+  return {
+    schema_version: "0.4",
+    reviewer: { name: "claude-opus-4-8", review_date: "2026-06-23" },
+    dataset: { name: "A dataset", url: "https://example.org/d", comments: "fine" },
+    answers,
+  };
+}
+
 /** Serialise a valid object as real YAML syntax (not JSON). */
 function toYaml(obj: ReturnType<typeof validObject>): string {
   const reviewer = obj.reviewer as Record<string, string>;
@@ -69,6 +83,25 @@ describe("parseAndValidate", () => {
   it("rejects an incomplete assessment with 400", () => {
     const obj = validObject();
     delete (obj.answers as Record<string, unknown>)["ACM-5"];
+    const result = parseAndValidate(JSON.stringify(obj));
+    expect(result).toMatchObject({ ok: false, status: 400 });
+  });
+});
+
+describe("parseAndValidate (v0.4)", () => {
+  it("accepts a complete v0.4 assessment", () => {
+    const result = parseAndValidate(JSON.stringify(validObjectV04()));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect((result.data as { schema_version: string }).schema_version).toBe(
+        "0.4"
+      );
+    }
+  });
+
+  it("rejects a v0.4 assessment missing an answer with 400", () => {
+    const obj = validObjectV04();
+    delete (obj.answers as Record<string, unknown>)["ABC-27"];
     const result = parseAndValidate(JSON.stringify(obj));
     expect(result).toMatchObject({ ok: false, status: 400 });
   });
@@ -176,6 +209,16 @@ describe("example fixture", () => {
     const yaml = readFileSync(
       fileURLToPath(
         new URL("../scripts/example-assessment-1.yaml", import.meta.url)
+      ),
+      "utf8"
+    );
+    expect(parseAndValidate(yaml).ok).toBe(true);
+  });
+
+  it("accepts the committed v0.4 example assessment as a complete upload", () => {
+    const yaml = readFileSync(
+      fileURLToPath(
+        new URL("../scripts/example-assessment-v0.4.yaml", import.meta.url)
       ),
       "utf8"
     );

@@ -1,0 +1,74 @@
+# Example AIRBDS assessment in the review-template shape (v0.4).
+# Upload it as-is (the Upload button, or POST /api/upload), or via the
+# test-upload scripts. reviewer.review_date is set below, so it is accepted
+# directly; the scripts leave an already-set date as-is and fill in the current
+# date/time only when it is blank. See the upstream review_template.yaml in the
+# airbds-metric repo for the blank template, and airbds_metric_v0.4.yaml for the
+# full question text, guidance, and scoring.
+#
+# v0.4 differs from v0.3: questions are re-identified (ABC-01 … ABC-27, 27 in
+# total) and no longer carry a "theme"; the scoring mechanism is unchanged
+# (each "Yes" earns its grade's points, Critical 80 / Important 5 / Optional 2).
+#
+# This is an AI-performed assessment, so reviewer.name holds the model name.
+# reviewer.initials/orcid/affiliation, dataset.hosting_resource/accession,
+# answers.*.not_applicable and result.* are accepted but ignored by auto-airbds
+# (the score and grade are recomputed from the metric definition).
+
+schema_version: "0.4"
+
+reviewer:
+  name: "claude-opus-4-8"   # Model name for an AI assessment
+  initials: ""
+  orcid: ""
+  affiliation: ""
+  review_date: "2026-06-23T11:53:00Z"  # A full timestamp; a bare date (e.g. 2026-06-23) is also valid
+
+dataset:
+  name: "Mediterranean Marine Invertebrate Occurrence Records 2015–2023"
+  url: "https://example-data-portal.org/datasets/med-marine-invert"
+  hosting_resource: "GBIF-connected IPT"
+  accession: "10.5281/zenodo.xxxxxx"
+  comments: >
+    The dataset is highly AI-ready: it carries a persistent DOI, machine-readable
+    Darwin Core/EML metadata, an AI/ML-permissive CC0 licence, documented
+    provenance, and consistent open formats. It falls short of Gold because bias
+    is undocumented (ABC-17) and some records are incomplete (ABC-19); addressing
+    those two Important items would raise it to Gold.
+
+process_comments: ""
+
+answers:
+  ABC-01: { answer: "Yes", comments: "The full set of occurrence records is retrievable from the landing page without partial gating. No subset restrictions were observed." }
+  ABC-02: { answer: "Yes", comments: "Metadata is packaged as EML within the same Darwin Core Archive as the data. It is also displayed on the dataset's GBIF landing page." }
+  ABC-03: { answer: "Yes", comments: "The Darwin Core Archive download is accompanied by a published MD5 checksum. Downloads can be verified against it before use." }
+  ABC-04: { answer: "Yes", comments: "The dataset is released under CC0 1.0, stated on the landing page and in the EML. The licence is expressed as a resolvable URI." }
+  ABC-05: { answer: "Yes", comments: "The licence is CC0 1.0, a standard Creative Commons licence. It is expressed as a resolvable URI, making it machine-readable." }
+  ABC-06: { answer: "Yes", comments: "The dataset is published through a GBIF-connected IPT, which is FAIR-compliant. It provides persistent identifiers, rich metadata, and standardised access." }
+  ABC-07: { answer: "Yes", comments: "The data are hosted on a GBIF-connected IPT instance built for biodiversity data publishing. The platform is purpose-built for scientific datasets." }
+  ABC-08: { answer: "Yes", comments: "The dataset is indexed and discoverable through GBIF's search interface. Faceted search by taxon and region is supported." }
+  ABC-09: { answer: "Yes", comments: "A registered DOI (10.5281/zenodo.xxxxxx) is assigned and resolves to the current version. The identifier is globally unique and persistent." }
+  ABC-10: { answer: "No",  comments: "Updated releases overwrite the prior file with no versioned history exposed. Only a single 'current' version is retrievable." }
+  ABC-11: { answer: "Yes", comments: "Metadata is provided as EML within a Darwin Core Archive. Both are machine-readable, domain-standard formats for biodiversity data." }
+  ABC-12: { answer: "Yes", comments: "The EML record embeds the dataset DOI in the packageId field. The identifier matches the registered DOI." }
+  ABC-13: { answer: "No",  comments: "No access-control statement is present in the metadata. The dataset is fully open, but this is not declared explicitly." }
+  ABC-14: { answer: "Yes", comments: "The metadata documents the occurrence and sampling-event modalities collected. Measurement modalities are listed per event." }
+  ABC-15: { answer: "Yes", comments: "The EML methods section documents cleaning, taxonomic matching, and coordinate validation steps. The steps are detailed enough to reproduce." }
+  ABC-16: { answer: "Yes", comments: "Collector, institution, and sampling protocol are recorded per event. The processing lineage and provenance are described in the metadata." }
+  ABC-17: { answer: "No",  comments: "The metadata does not discuss sampling or geographic bias. Spatial coverage is uneven but unacknowledged." }
+  ABC-18: { answer: "Yes", comments: "Records carry unique occurrenceIDs and a deduplication step is documented. No duplicate identifiers were detected on inspection." }
+  ABC-19: { answer: "No",  comments: "Roughly 18% of records lack coordinate uncertainty and several event dates are year-only. Expected completeness for some fields is not met." }
+  ABC-20: { answer: "Yes", comments: "All entries use consistent Darwin Core term names and data types. Units for measurements are uniform across records." }
+  ABC-21: { answer: "Yes", comments: "Field names conform to the Darwin Core standard and taxa link to WoRMS. Units follow recognised biodiversity conventions." }
+  ABC-22: { answer: "Yes", comments: "Data are distributed as CSV within a Darwin Core Archive. This is an appropriate, widely supported format for tabular occurrence data." }
+  ABC-23: { answer: "Yes", comments: "CSV is open and non-proprietary. No proprietary tooling is needed to read the records." }
+  # Ethics questions — "Yes" because the dataset has no human/animal subjects.
+  ABC-24: { answer: "Yes", comments: "The dataset records species occurrences and contains no human or animal subject data. Marked 'Yes' as it is not applicable.", not_applicable: true }
+  ABC-25: { answer: "Yes", comments: "No human subject data is present in the dataset. Marked 'Yes' as it is not applicable.", not_applicable: true }
+  ABC-26: { answer: "Yes", comments: "No human subject data is present in the dataset. Marked 'Yes' as it is not applicable.", not_applicable: true }
+  ABC-27: { answer: "Yes", comments: "No human subject data is present in the dataset. Marked 'Yes' as it is not applicable.", not_applicable: true }
+
+# Calculated fields — ignored by auto-airbds (recomputed from the metric).
+result:
+  weighted_score: 697
+  grade: "Silver"

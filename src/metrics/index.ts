@@ -1,9 +1,14 @@
 import airbds03 from "./airbds_metric_v0.3.yaml";
+import airbds04 from "./airbds_metric_v0.4.yaml";
 
 export interface QuestionMeta {
   /** Broad category, broader than theme (e.g. Infrastructure, Metadata). */
   scope: string;
-  theme: string;
+  /**
+   * Sub-category within a scope (e.g. Access, License). Present in v0.3 but
+   * dropped in v0.4, so it is optional and consumers must tolerate its absence.
+   */
+  theme?: string;
   grade: string;
   question: string;
 }
@@ -43,6 +48,7 @@ export interface AnswerInput {
 // `airbds_metric_v<version>.yaml`, import it here, and register it to support a version.
 const REGISTRY: Record<string, MetricDefinition> = {
   "0.3": parseMetric(airbds03, "airbds_metric_v0.3.yaml"),
+  "0.4": parseMetric(airbds04, "airbds_metric_v0.4.yaml"),
 };
 
 /** Look up the fixed theme/grade for a question in a given metric version. */
@@ -189,12 +195,18 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
     if (
       !isRecord(value) ||
       typeof value.scope !== "string" ||
-      typeof value.theme !== "string" ||
       typeof value.grade !== "string" ||
       typeof value.question !== "string"
     ) {
       throw new Error(
-        `Invalid metric file ${source}: question "${id}" needs string scope, theme, grade and question`
+        `Invalid metric file ${source}: question "${id}" needs string scope, grade and question`
+      );
+    }
+    // `theme` is optional: v0.3 questions carry one, v0.4 questions do not. When
+    // present it must be a string; when absent it is simply omitted.
+    if (value.theme !== undefined && typeof value.theme !== "string") {
+      throw new Error(
+        `Invalid metric file ${source}: question "${id}" theme must be a string when present`
       );
     }
     if (!(value.grade in gradePoints)) {
@@ -204,9 +216,9 @@ function parseMetric(raw: unknown, source: string): MetricDefinition {
     }
     questions[id] = {
       scope: value.scope,
-      theme: value.theme,
       grade: value.grade,
       question: value.question,
+      ...(typeof value.theme === "string" ? { theme: value.theme } : {}),
     };
   }
 

@@ -43,6 +43,35 @@ export const METRIC_QUESTION_IDS: Record<string, readonly string[]> = {
     "ACM-27",
     "ACM-28",
   ],
+  "0.4": [
+    "ABC-01",
+    "ABC-02",
+    "ABC-03",
+    "ABC-04",
+    "ABC-05",
+    "ABC-06",
+    "ABC-07",
+    "ABC-08",
+    "ABC-09",
+    "ABC-10",
+    "ABC-11",
+    "ABC-12",
+    "ABC-13",
+    "ABC-14",
+    "ABC-15",
+    "ABC-16",
+    "ABC-17",
+    "ABC-18",
+    "ABC-19",
+    "ABC-20",
+    "ABC-21",
+    "ABC-22",
+    "ABC-23",
+    "ABC-24",
+    "ABC-25",
+    "ABC-26",
+    "ABC-27",
+  ],
 };
 
 // The Ethics-scope question ids per metric version (scope: Ethics in the YAML).
@@ -50,6 +79,7 @@ export const METRIC_QUESTION_IDS: Record<string, readonly string[]> = {
 // import needs to know which ids are Ethics — see metricForVersion below.
 export const METRIC_ETHICS_IDS: Record<string, readonly string[]> = {
   "0.3": ["ACM-24", "ACM-25", "ACM-26", "ACM-27", "ACM-28"],
+  "0.4": ["ABC-24", "ABC-25", "ABC-26", "ABC-27"],
 };
 
 /**

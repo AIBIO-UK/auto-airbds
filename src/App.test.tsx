@@ -178,10 +178,11 @@ describe("App routing", () => {
     expect(screen.getByText("ACM-1")).toBeInTheDocument();
     expect(screen.getByText("ACM-4")).toBeInTheDocument();
 
-    // Scope, theme and question text come from the metric.
+    // Scope, theme and question text come from the metric. (v0.3 questions
+    // always carry a theme, so the non-null assertions are safe here.)
     expect(screen.getAllByText(meta1.scope).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(meta1.theme).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(meta4.theme).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta1.theme!).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(meta4.theme!).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta1.question).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(meta4.question).length).toBeGreaterThanOrEqual(1);
 

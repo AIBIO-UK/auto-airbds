@@ -20,9 +20,10 @@ dist-ssr
 .claude/
 
 # Local ad-hoc test assessments dropped in scripts/ for manual uploads.
-# The committed example fixture is kept.
+# The committed example fixtures are kept.
 scripts/*.yaml
 !scripts/example-assessment-1.yaml
+!scripts/example-assessment-v0.4.yaml
 
 # Editor directories and files
 .vscode/*

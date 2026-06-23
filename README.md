@@ -9,26 +9,28 @@ An experimental website for collecting, processing and publishing AIRBDS dataset
 
 ## Metric definitions
 
-For a given AIRBDS metric version, each question's **theme**, **grade**, and **question** text are fixed (e.g. `ACM-1` is always Access/Important, `ACM-4` is always License/Critical), as is its **score**: a `Yes` answer earns the full points for the question's grade (`grade_points`, e.g. Critical 80 / Important 5 / Optional 2) and a `No` scores 0. These are defined in [`src/metrics/`](./src/metrics/), one language-neutral YAML file per version named by version (`airbds_metric_v<version>.yaml`), and are the source of truth — the corresponding fields in uploaded assessments are ignored in favour of these.
+Two metric versions are supported, **v0.3** and **v0.4**. They have different questions and scoring and are **not directly comparable**, but both produce a Gold/Silver/Bronze/Caution grade, and an assessment carries its own version in `schema_version` so the two coexist.
+
+For a given AIRBDS metric version, each question's **scope**, **grade**, and **question** text are fixed (e.g. in v0.3 `ACM-1` is always Access/Important, `ACM-4` is always License/Critical), as is its **score**: a `Yes` answer earns the full points for the question's grade (`grade_points`, e.g. Critical 80 / Important 5 / Optional 2) and a `No` scores 0. (v0.3 questions also carry a finer-grained **theme**; v0.4 drops it, so the Theme row is shown only for versions that define one.) These are defined in [`src/metrics/`](./src/metrics/), one language-neutral YAML file per version named by version (`airbds_metric_v<version>.yaml`), and are the source of truth — the corresponding fields in uploaded assessments are ignored in favour of these.
 
 The overall score shown in the summary is computed the same way and **not** taken from the uploaded `scoring_summary`: the actual score is the sum of points for the questions answered `Yes`, and the maximum is the total if every question were `Yes`.
 
 The **grade** (e.g. Gold/Silver/Bronze/Caution) is also computed, not trusted from the payload. Each YAML file has a `grading` section (highest grade first) listing, per grade, a `min_proportion_yes` for each grade category and a `min_score`. A dataset earns the highest grade for which the proportion of `Yes` answers in every category is at least its minimum (compared with `>=`) and the total score is at least `min_score`. Editing the `grading` section re-grades without any code change.
 
-[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` (scope/theme/grade/question), `questionScore(version, questionId, answer)`, `questionMaxScore(version, questionId)`, `maxScore(version)`, and `computeGrade(version, answers)`; the assessment view uses them to display each question, the overall total, and the grade. Definitions are validated at load, so a malformed file fails loudly. To support a new version, add `airbds_metric_v<version>.yaml` and register it in `index.ts`.
+[`src/metrics/index.ts`](./src/metrics/index.ts) registers each version and exposes `questionMeta(version, questionId)` (scope/theme/grade/question), `questionScore(version, questionId, answer)`, `questionMaxScore(version, questionId)`, `maxScore(version)`, and `computeGrade(version, answers)`; the assessment view uses them to display each question, the overall total, and the grade. Definitions are validated at load, so a malformed file fails loudly. To support a new version, add `airbds_metric_v<version>.yaml`, register it in `index.ts`, and add its question ids to [`functions/metrics.ts`](./functions/metrics.ts) (a unit test keeps the two in sync). `theme` is optional, so a version that omits it (like v0.4) loads fine.
 
 ## Upload format
 
-Assessments are uploaded to `POST /api/upload` as **YAML** in the shape of the AIRBDS [review template](https://github.com/AIBIO-UK/airbds-metric) (`review_template.yaml`). JSON is also accepted, since YAML is a superset of JSON. Use the **Upload assessment** button on the main page, or POST a file directly (e.g. the [test scripts](#test-upload-scripts)). A filled example is in [`scripts/example-assessment-1.yaml`](./scripts/example-assessment-1.yaml).
+Assessments are uploaded to `POST /api/upload` as **YAML** in the shape of the AIRBDS [review template](https://github.com/AIBIO-UK/airbds-metric) (`review_template.yaml`). JSON is also accepted, since YAML is a superset of JSON. The version is taken from the file's `schema_version`, so the same **Upload assessment (YAML)** button on the main page ingests both v0.3 and v0.4. Use that button, or POST a file directly (e.g. the [test scripts](#test-upload-scripts)). Filled examples are in [`scripts/example-assessment-1.yaml`](./scripts/example-assessment-1.yaml) (v0.3) and [`scripts/example-assessment-v0.4.yaml`](./scripts/example-assessment-v0.4.yaml) (v0.4).
 
 The fields auto-airbds reads are:
 
-- `schema_version` — the AIRBDS metric version (must be one the app knows, e.g. `"0.3"`)
+- `schema_version` — the AIRBDS metric version (must be one the app knows: `"0.3"` or `"0.4"`)
 - `reviewer.name` — who performed the assessment; a **model name** for an AI assessment or a **person's name** for a human review (the two are unified — there is no separate "model" field)
 - `reviewer.review_date` — when it was performed (an ISO date, e.g. `2026-06-03`, or a full timestamp, e.g. `2026-06-03T11:53:00Z`)
 - `dataset.name`, `dataset.url` — the dataset assessed
 - `dataset.comments` — free-text summary, shown in the scoring-summary box
-- `answers.<ID>` — a map keyed by question id (`ACM-1`, …), each `{ answer: "Yes" | "No", comments: "…" }`
+- `answers.<ID>` — a map keyed by question id (`ACM-1`, … in v0.3; `ABC-01`, … in v0.4), each `{ answer: "Yes" | "No", comments: "…" }`
 
 Other template fields (`reviewer.initials`/`orcid`/`affiliation`, `dataset.hosting_resource`/`accession`, `answers.*.not_applicable`, `result.*`) are accepted but ignored — the score and grade are recomputed from the metric definition, not trusted from the upload.
 

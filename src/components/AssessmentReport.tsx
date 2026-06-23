@@ -105,8 +105,14 @@ export function AssessmentReport({ data, metricVersion }: Props) {
               <span className="mono">{r.questionId ?? "—"}</span>
               <span className="field-label">Scope:</span>
               <span>{scope ?? "—"}</span>
-              <span className="field-label">Theme:</span>
-              <span>{theme ?? "—"}</span>
+              {/* Theme is v0.3-only; omit the row entirely for metrics (v0.4+)
+                  that do not define one, rather than showing an empty value. */}
+              {theme !== null && (
+                <>
+                  <span className="field-label">Theme:</span>
+                  <span>{theme}</span>
+                </>
+              )}
               <span className="field-label">Grade:</span>
               <span>{grade ?? "—"}</span>
               <span className="field-label">Question:</span>
