@@ -22,4 +22,4 @@
 
 ## Other
 - Extend skill instructions to openai in airbs-metrics repository and test.
-- The upload buttons used to hardcode "v0.3" in their labels. **Partly done:** the YAML upload button is now version-agnostic ("Upload assessment (YAML)") and ingests both **v0.3** and **v0.4** — the version is taken from the file's `schema_version`, which the upload endpoint already accepts for any known version. The **Google Sheet** button still reads "v0.3 (Google sheet)" because the sheet import is pinned to the converter's `SCHEMA_VERSION`; **v0.4 Google Sheet import is a follow-up** (needs `@airbds/converter-tools` to emit v0.4, then relabel/derive that button's version too).
+- The upload buttons used to hardcode "v0.3" in their labels. **Done:** both buttons are now version-agnostic. The YAML upload button ("Upload assessment (YAML)") takes the version from the file's `schema_version`; the Google Sheet button ("Upload assessment (Google sheet)") imports both **v0.3** and **v0.4** — `@airbds/converter-tools` (≥ 0.5.0) detects the metric version from the sheet's Instructions tab (`detectSchemaVersion`) and `POST /api/import-sheet` loads the matching server-side metric.

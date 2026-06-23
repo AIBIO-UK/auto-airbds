@@ -56,8 +56,26 @@ describe("assembleImport", () => {
     expect(out.data.reviewer.initials).toBe("AL");
     expect(out.data.reviewer.affiliation).toBe("Analytical Engine Co.");
     expect(out.data.dataset.url).toBe("https://example.org/ds");
+    expect(out.data.schema_version).toBe("0.3");
     expect(Object.keys(out.data.answers)).toHaveLength(28);
     expect(out.notices).toEqual([]);
+  });
+
+  it("imports a v0.4 sheet and stamps schema_version 0.4 with 27 answers", () => {
+    const v04 = metricForVersion("0.4")!;
+    const ids = METRIC_QUESTION_IDS["0.4"];
+    const answers = Object.fromEntries(ids.map((id) => [id, "Yes"]));
+    const out = assembleImport(
+      reviewInfoCsv(),
+      questionsCsv(answers),
+      validForm,
+      v04
+    );
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    // schema_version comes from the metric (v0.5 converter), not a constant.
+    expect(out.data.schema_version).toBe("0.4");
+    expect(Object.keys(out.data.answers)).toHaveLength(27);
   });
 
   it("blocks when the review date is missing", () => {

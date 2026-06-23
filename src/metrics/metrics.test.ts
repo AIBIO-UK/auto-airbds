@@ -8,6 +8,8 @@ import {
   maxScore,
   computeGrade,
   hasMetricVersion,
+  SUPPORTED_VERSIONS,
+  supportedVersionsLabel,
 } from "./index";
 
 // Read each metric definition straight from its YAML so these tests track the
@@ -160,3 +162,22 @@ for (const METRIC of METRICS) {
     });
   });
 }
+
+describe("supported versions", () => {
+  // Derived from the registry (built from the imported YAMLs), so this tracks
+  // whatever versions are registered rather than a hard-coded list.
+  const expected = METRICS.map((m) => m.version).sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true })
+  );
+
+  it("lists exactly the registered metric versions, ascending", () => {
+    expect(SUPPORTED_VERSIONS).toEqual(expected);
+    for (const v of SUPPORTED_VERSIONS) expect(hasMetricVersion(v)).toBe(true);
+  });
+
+  it("labels the supported range from first to last version", () => {
+    expect(supportedVersionsLabel()).toBe(
+      `v${expected[0]}–v${expected[expected.length - 1]}`
+    );
+  });
+});

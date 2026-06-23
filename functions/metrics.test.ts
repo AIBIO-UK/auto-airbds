@@ -34,6 +34,8 @@ for (const metric of METRICS) {
     it("builds a converter Metric with question ids and the Ethics set", () => {
       const m = metricForVersion(metric.version);
       expect(m).not.toBeNull();
+      // schemaVersion drives the converter's emitted review.schema_version.
+      expect(m!.schemaVersion).toBe(metric.version);
       expect(m!.questionIds).toEqual(Object.keys(metric.questions));
       expect([...m!.ethicsIds].sort()).toEqual(
         [...METRIC_ETHICS_IDS[metric.version]].sort()

@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { fetchSheet, SCHEMA_VERSION } from "@airbds/converter-tools";
+import { fetchSheet, detectSchemaVersion } from "@airbds/converter-tools";
 import { metricForVersion } from "../metrics";
 import { assembleImport } from "../import";
 import { checkIngestGuards, storeEntry } from "../ingest";
@@ -50,14 +50,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   if (!url) return json({ error: "A Google Sheet URL is required." }, 400);
   if (!reviewDate) return json({ error: "A review date is required." }, 400);
 
-  const metric = metricForVersion(SCHEMA_VERSION);
-  if (!metric) {
-    return json(
-      { error: `Metric version ${SCHEMA_VERSION} is not configured on the server.` },
-      500
-    );
-  }
-
   // Fetch the two CSV tabs. Bad id, an un-shared sheet, or a non-template sheet
   // surface here as the converter's own (human-readable) error message.
   let sheet: { reviewCsv: string; questionsCsv: string };
@@ -67,6 +59,28 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return json(
       { error: e instanceof Error ? e.message : "Could not read the Google Sheet." },
       400
+    );
+  }
+
+  // The sheet declares its own metric version on the Instructions tab; pick the
+  // matching server-side metric. The sheet is trusted for the version only —
+  // assembleImport still recomputes every answer/score itself.
+  const version = detectSchemaVersion(sheet.reviewCsv);
+  if (!version) {
+    return json(
+      {
+        error:
+          "Could not determine the metric version from the Google Sheet. " +
+          "Make sure it is an AIRBDS assessment template.",
+      },
+      400
+    );
+  }
+  const metric = metricForVersion(version);
+  if (!metric) {
+    return json(
+      { error: `Metric version ${version} is not configured on the server.` },
+      500
     );
   }
 

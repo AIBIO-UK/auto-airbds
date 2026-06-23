@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { navigate } from "../useHashRoute";
+import { supportedVersionsLabel } from "../metrics";
 
 interface Props {
   /** Called after a successful import so the caller can refresh the list. */
@@ -101,7 +102,8 @@ export function SheetImportForm({ onImported }: Props) {
       <p className="subtitle">
         Paste the link to a public AIRBDS assessment Google Sheet (shared{" "}
         <em>“anyone with the link”</em>). It is converted to the review format and
-        checked for completeness before being imported.
+        checked for completeness before being imported. AIRBDS metric versions{" "}
+        {supportedVersionsLabel()} are supported (the version is read from the sheet).
       </p>
       <form onSubmit={handleSubmit}>
         <label className="field">

@@ -166,6 +166,26 @@ export function hasMetricVersion(version: string | null | undefined): boolean {
 }
 
 /**
+ * The metric versions the app can ingest and score, ascending (e.g.
+ * ["0.3", "0.4"]). Derived from the registry, so adding a metric to REGISTRY is
+ * all it takes — the supported-versions copy in the UI can't drift from it.
+ */
+export const SUPPORTED_VERSIONS: string[] = Object.keys(REGISTRY).sort((a, b) =>
+  a.localeCompare(b, undefined, { numeric: true })
+);
+
+/**
+ * A short label for the supported metric-version range to show on the upload UI,
+ * e.g. "v0.3–v0.4" (or "v0.3" when only one version is registered).
+ */
+export function supportedVersionsLabel(): string {
+  if (SUPPORTED_VERSIONS.length === 0) return "";
+  const first = SUPPORTED_VERSIONS[0];
+  const last = SUPPORTED_VERSIONS[SUPPORTED_VERSIONS.length - 1];
+  return first === last ? `v${first}` : `v${first}–v${last}`;
+}
+
+/**
  * Validate and normalise a parsed metric YAML file into a definition. Throws
  * at load time if the file is malformed, so a bad definition fails loudly
  * rather than silently dropping questions or mis-scoring.

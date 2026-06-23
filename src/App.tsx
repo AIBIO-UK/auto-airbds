@@ -5,6 +5,7 @@ import { UploadButton } from "./components/UploadButton";
 import { SheetImportForm } from "./components/SheetImportForm";
 import { EntryView } from "./components/EntryView";
 import { navigate, useHashRoute } from "./useHashRoute";
+import { supportedVersionsLabel } from "./metrics";
 
 function App() {
   const [entries, setEntries] = useState<UploadEntry[]>([]);
@@ -64,17 +65,19 @@ function App() {
         <>
           <h1>Assessment Uploads</h1>
           <p className="subtitle">
-            Upload a YAML assessment or import one from a Google Sheet with the
-            buttons below, or POST YAML to <code>/api/upload</code>. Click on any
-            assessment to see the results.
+            Upload a YAML assessment or import one from a Google Sheet with the buttons below.
+            <br/><br/>
+            AIRBDS metric versions {supportedVersionsLabel()} are supported. 
           </p>
           <div className="upload-actions">
             <UploadButton onUploaded={load} />
             {/* Hash route so it works without SPA-fallback server config. */}
             <a className="upload-btn upload-btn-link" href="#/import-sheet">
-              Upload assessment v0.3 (Google sheet)
+              Upload assessment (Google sheet)
             </a>
           </div>
+          <h1>Assessments</h1>
+          <p className="subtitle">Click on any assessment to see the results.</p>
           <UploadList
             entries={entries}
             onSelect={(id) => navigate(`/entry/${encodeURIComponent(id)}`)}

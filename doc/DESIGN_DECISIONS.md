@@ -106,6 +106,13 @@ the import form rather than the sheet.
   converted review is gated by the **same `validateAssessment`** as
   `POST /api/upload` (via `functions/ingest.ts`), so both routes enforce identical
   completeness rules and share the rate-limit/cap guards.
+- **Why the metric version is read from the sheet.** The sheet declares its own
+  version on the Instructions tab ("AIRBDS … Metric vX.Y"); the route reads it with
+  the converter's `detectSchemaVersion` and loads the matching server-side metric
+  (`metricForVersion`), so one import path serves every metric version (v0.3 and
+  v0.4 today). The sheet is trusted for the *version* only — answers and score are
+  recomputed server-side; the `ACM-`/`ABC-` question-id prefix is deliberately not
+  used to infer it.
 - **Why a published npm package, not vendoring or a path dependency.** The two
   repos are separate, and Cloudflare Pages builds only this repo, so a sibling
   `file:` path won't resolve in the build container. Publishing the converter to

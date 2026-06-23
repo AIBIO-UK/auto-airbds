@@ -71,10 +71,13 @@ Because `@airbds/converter-tools` pulls in `csv-parse` (which uses Node's
 `Buffer`/`stream`), the Functions runtime needs the `nodejs_compat`
 compatibility flag — set in [`wrangler.toml`](./wrangler.toml).
 
-The conversion to the converter `Metric` (question ids + which are Ethics-scope)
-is driven by [`functions/metrics.ts`](./functions/metrics.ts), so no metric YAML
-is parsed in the Functions bundle; a unit test keeps it in sync with
-`src/metrics/`.
+The metric version is read from the sheet itself — the "AIRBDS … Metric vX.Y"
+label on its Instructions tab, via the converter's `detectSchemaVersion` — so the
+one button imports both **v0.3** and **v0.4** sheets (the version is trusted from
+the sheet, the score is not). The conversion to the converter `Metric` (question
+ids + which are Ethics-scope) for that version is driven by
+[`functions/metrics.ts`](./functions/metrics.ts), so no metric YAML is parsed in
+the Functions bundle; a unit test keeps it in sync with `src/metrics/`.
 
 ### Errors reported back
 

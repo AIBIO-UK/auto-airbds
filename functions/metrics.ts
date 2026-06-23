@@ -105,6 +105,7 @@ export function metricForVersion(
   const questionIds = questionIdsForVersion(version);
   if (!version || !questionIds) return null;
   return {
+    schemaVersion: version,
     questionIds: [...questionIds],
     ethicsIds: new Set(METRIC_ETHICS_IDS[version] ?? []),
   };
