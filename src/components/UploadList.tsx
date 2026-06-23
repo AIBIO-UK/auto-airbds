@@ -20,7 +20,9 @@ export function UploadList({ entries, onSelect, onDelete }: Props) {
   return (
     <ul className="upload-list">
       {entries.map((entry) => {
-        const { name, url, reviewDate, reviewer } = datasetInfo(entry.data);
+        const { name, url, reviewDate, reviewer, metricVersion } = datasetInfo(
+          entry.data
+        );
         const status = moderationStatus();
         return (
           <li key={entry.id}>
@@ -31,6 +33,10 @@ export function UploadList({ entries, onSelect, onDelete }: Props) {
               <span className="url">{url ?? "(no source URL)"}</span>
               <span className="field-label">Performed by:</span>
               <span className="performer">{reviewer ?? "(unknown)"}</span>
+              <span className="field-label">AIRBDS version:</span>
+              <span className="metric-version">
+                {metricVersion ?? "(unknown)"}
+              </span>
               <span className="field-label">Assessment performed:</span>
               <span className="timestamp">
                 {reviewDate ? formatTimestamp(reviewDate) : "(unknown)"}
