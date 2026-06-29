@@ -18,3 +18,4 @@
 - AGENTS.md
 - CLAUDE.md (symlink to AGENTS.md)
 - doc/ other documentation including planned future features/changes and product decisions
+- doc/SECURITY.md security posture and deferred review findings
