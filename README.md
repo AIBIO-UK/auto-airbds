@@ -28,7 +28,7 @@ The fields auto-airbds reads are:
 - `schema_version` — the AIRBDS metric version (must be one the app knows: `"0.3"` or `"0.4"`)
 - `reviewer.name` — who performed the assessment; a **model name** for an AI assessment or a **person's name** for a human review (the two are unified — there is no separate "model" field)
 - `reviewer.review_date` — when it was performed (an ISO date, e.g. `2026-06-03`, or a full timestamp, e.g. `2026-06-03T11:53:00Z`)
-- `dataset.name`, `dataset.url` — the dataset assessed
+- `dataset.name`, `dataset.url` — the dataset assessed (`dataset.url` must be an `http(s)` URL)
 - `dataset.comments` — free-text summary, shown in the scoring-summary box
 - `answers.<ID>` — a map keyed by question id (`ACM-1`, … in v0.3; `ABC-01`, … in v0.4), each `{ answer: "Yes" | "No", comments: "…" }`
 

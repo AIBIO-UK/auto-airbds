@@ -188,6 +188,28 @@ describe("validateAssessment", () => {
     expect(validateAssessment(noUrl)).toMatch(/dataset\.url/);
   });
 
+  it("rejects a dataset.url with a non-http(s) scheme", () => {
+    for (const url of [
+      "javascript:alert(1)",
+      "data:text/html,<script>alert(1)</script>",
+      "file:///etc/passwd",
+      "ftp://example.org/d",
+      "not a url",
+    ]) {
+      const obj = validObject();
+      (obj.dataset as Record<string, unknown>).url = url;
+      expect(validateAssessment(obj)).toMatch(/dataset\.url.*http/);
+    }
+  });
+
+  it("accepts a dataset.url with http or https", () => {
+    for (const url of ["http://example.org/d", "https://example.org/d"]) {
+      const obj = validObject();
+      (obj.dataset as Record<string, unknown>).url = url;
+      expect(validateAssessment(obj)).toBeNull();
+    }
+  });
+
   it("rejects a missing answer", () => {
     const obj = validObject();
     delete (obj.answers as Record<string, unknown>)["ACM-12"];

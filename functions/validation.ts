@@ -87,6 +87,11 @@ export function validateAssessment(data: unknown): string | null {
   const dataset = isRecord(data.dataset) ? data.dataset : null;
   if (!nonEmptyString(dataset?.name)) return 'Missing "dataset.name"';
   if (!nonEmptyString(dataset?.url)) return 'Missing "dataset.url"';
+  // Restrict the dataset URL to http(s). It is currently rendered as plain text,
+  // but pinning the scheme here is defence-in-depth: if the URL is ever made a
+  // clickable link, a stored "javascript:" or "data:" URL must not be able to
+  // execute.
+  if (!isHttpUrl(dataset?.url)) return 'Invalid "dataset.url" (must be http(s))';
 
   const answers = isRecord(data.answers) ? data.answers : null;
   if (!answers) return 'Missing "answers"';
@@ -107,4 +112,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function nonEmptyString(value: unknown): boolean {
   return typeof value === "string" && value.trim() !== "";
+}
+
+/** True only for a parseable absolute URL whose scheme is http: or https:. */
+function isHttpUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  let url: URL;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    return false;
+  }
+  return url.protocol === "http:" || url.protocol === "https:";
 }
