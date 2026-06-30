@@ -1,5 +1,7 @@
 An experimental website for collecting, processing and publishing AIRBDS dataset assessments (AI-performed or human-performed).
 
+The test website is hosted at https://auto-airbds.pages.dev/
+
 ## Infrastructure
 
 - **Cloudflare Pages** — hosting and serverless functions (Pages Functions) for the API endpoints (`POST /api/upload`, `POST /api/import-sheet`, `GET /api/entries`, and the admin-only `DELETE /api/entries/:id`)
